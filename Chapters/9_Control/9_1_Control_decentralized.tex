@@ -1,6 +1,6 @@
 \section{Controllo decentralizzato a giunti indipendenti \\ {\small \textit{Decentralized Joint Space Control}}}
 
-Nel controllo decentralizzato a giunti indipendenti \textbf{ogni} singolo \textbf{giunto} attuato è considerato come un \textbf{sottosistema SISO disaccoppiato e indipendente}, descritto da un modello dinamico approssimato. Gli \textbf{effetti di accoppiamento} non-lineari presenti nella dinamica propria del robot sono \textbf{considerati come disturbi}.\\
+Nel controllo decentralizzato a giunti indipendenti \textbf{ogni} singolo \textbf{giunto} attuato è considerato come un \textbf{sottosistema SISO disaccoppiato e indipendente}, descritto da un modello dinamico approssimato. Gli \textbf{effetti di accoppiamento} non-lineari presenti nella dinamica propria del robot sono \textbf{considerati come disturbi}.
 
 Lo schema di controllo complessivo è formato da $n$ controllori (uno per ogni giunto), basati su reti di compensazione classiche, ciascuno agente in modo indipendente dagli altri.\\
 Ricordiamo che il nostro obiettivo è quello di far eseguire una sequenza $\mathbf{q}(t)$ in modo che $\mathbf{q}(t) \to \mathbf{q}_d(t)$.\\	
@@ -21,16 +21,18 @@ $$
 L'importante di questa espressione è la proporzionalità fra $\mathbf{G}_v$ e  $\dot{\mathbf{q}}$ (velocità), che notiamo essere indipendente dai parametri del manipolatore. Inoltre questa proporzione è tanto più valida quanto velocità/accellerazioni sono piccole (per questa cosa viene in aiuto anche il gear-reduction ratio).
 
 \begin{mdframed}[leftmargin=15pt, rightmargin=15pt, leftline=false, rightline=false]
+\textit{Dim.}
+
 \textit{
 Partendo dal modello dinamico {\boldmath$B(q)\ddot{q} + C(q, \dot{q})\dot{q} + F_v\dot{q} + g(q) = \tau$} introduciamo in esso la frizione viscosa elettrica. Ovvero poniamo {\boldmath$F_v = F_\text{v. mech.} + F_\text{v. electr.} = F_\text{v. mech.} + K_rK_tR_a^{-1}K_\omega K_r$}. \\
-Inoltre dal modello del motore possiamo ottenere una forma per $\boldsymbol{\tau}$: 
+Inoltre dal modello del motore: 
 {\boldmath$\tau_m = K_r^{-1} \tau = K_t I_a \implies \tau = K_r K_t I_a$}. Sappiamo anche che $V = Ri \implies i = \frac{V}{R}$ e quindi, ricordando che {\boldmath$V_c = G_v V_c^{'}$}, otteniamo {\boldmath $I_a = R_a^{-1}G_v V_c$}. Unendo il tutto otteniamo {\boldmath $\tau = K_r K_t R_a^{-1}G_v V_c$}.\\
 Inserendo tutto nella formula del modello dinamico otteniamo:
 \boldmath
 $$
 B(q)\ddot{q} + C(q, \dot{q})\dot{q} + F_{\text{v. mech.}}\dot{q} + g(q) = K_r K_t R_a^{-1}G_v V_c - K_rK_tR_a^{-1}K_\omega K_r
 $$
-Ovvero, raccogliendo i termini a destra (ricordando che originalmente quello era tau):
+Ovvero, raccogliendo i termini a destra (ricordando che originalmente quello era $\tau$):
 $$
 \tau =  K_r K_t R_a^{-1}(G_v V_c - K_\omega K_r \dot{q})
 $$
@@ -62,10 +64,9 @@ K_r^{-1}B(q)K_r^{-1}\ddot{q}_m + K_r^{-1}C(q, \dot{q})K_r^{-1}\dot{q}_m + K_r^{-
 $$
 \unboldmath
 
-(Questa equazione è ottenuta semplicemente applicando (\ref{eq:trasmission_reduction}) e (\ref{eq:trasmission_reduction_torque}) a (\ref{eq:dynamic_no_ext_forces})).\\
+(Questa equazione è ottenuta semplicemente applicando (\ref{eq:trasmission_reduction}) e (\ref{eq:trasmission_reduction_torque}) a (\ref{eq:dynamic_no_ext_forces})).
 
-Procediamo con un'osservazione:\\
-$\mathbf{B}(q)$ può essere decomposta in $\mathbf{B}(q) = \bar{\mathbf{B}} + \Delta\mathbf{B}(q)$, dove $\bar{\mathbf{B}}$ è una matrice diagonale costante e $\Delta\mathbf{B}(q)$ è una matrice configuration-dependent. Possiamo quindi riscrivere l'ultima equazione come:
+È possibile notare che $\mathbf{B}(q)$ può essere decomposto in $\mathbf{B}(q) = \bar{\mathbf{B}} + \Delta\mathbf{B}(q)$, ove $\bar{\mathbf{B}}$ è una matrice diagonale costante e $\Delta\mathbf{B}(q)$ è una matrice configuration-dependent. Possiamo quindi riscrivere l'ultima equazione come:
 \boldmath
 \begin{gather*}
 (\bar{B} + \Delta B(q)) K_r^{-1} \ddot{q} + C(q, \dot{q})K_r^{-1}\dot{q} + F_vK_r^{-1}\dot{q} + g(q) = K_r \tau_m \\
@@ -74,24 +75,22 @@ K_r^{-1}\bar{B}K_r^{-1}\ddot{q}_m +
 \underbrace{K_r^{-1}\Delta B(q)K_r^{-1}\ddot{q}_m + K_r^{-1}C(q, \dot{q})K_r^{-1}\dot{q}_m + K_r^{-1}g(q)}_{disturbances}
 + K_r^{-1}F_vK_r^{-1}\dot{q}_m  = \tau_m
 \end{gather*}
-\unboldmath
 
-E, come evidenziato nell'equazione, possiamo considerare gli effetti degli altri giunti su quello corrente come \textbf{disturbi}.\\
-Inoltre, visto che questi termini sono moltiplicati per $\mathbf{K}_r^{-1}$, \textbf{più alto è il gear-ratio e meno questi termini influenzeranno il nostro sistema}, portandoci così ad un sistema sempre più lineare e disaccoppiato (ovviamente c'è un limite, visto che gear-ratio altissimi non produrrebbero praticamente alcune velocità).
+
+E, come evidenziato nell'equazione, possiamo considerare gli effetti degli altri giunti su quello corrente come \textbf{disturbi}:
+\begin{equation}\label{eq:dynamic_disturbances}
+	d = K_r^{-1}\Delta B(q)K_r^{-1}\ddot{q}_m + K_r^{-1}C(q, \dot{q})K_r^{-1}\dot{q}_m + K_r^{-1}g(q)
+\end{equation}
+
+Inoltre, visto che questi termini sono moltiplicati per $\mathbf{K}_r^{-1}$, \textbf{più alto è il gear-ratio e meno questi termini influenzeranno il nostro sistema} ($d \downarrow$ quando $K_r \uparrow$), portandoci così ad un sistema sempre più lineare e disaccoppiato (ovviamente c'è un limite, visto che gear-ratio altissimi non produrrebbero praticamente alcune velocità).
 
 Riassumendo:
 
-\boldmath
+
 \begin{equation}\label{eq:dynamic_with_disturbances}
 K_r^{-1}\bar{B}K_r^{-1}\ddot{q}_m + F_m\dot{q}_m + d = \tau_m
 \end{equation}
-dove
-\begin{equation}\label{eq:dynamic_disturbances}
-d = K_r^{-1}\Delta B(q)K_r^{-1}\ddot{q}_m + K_r^{-1}C(q, \dot{q})K_r^{-1}\dot{q}_m + K_r^{-1}g(q)
-\end{equation}
-
-e $F_m \triangleq K_r^{-1}F_vK_r^{-1}$. 
-Quindi $d \downarrow$ quando $K_r \uparrow$.
+dove $F_m \triangleq K_r^{-1}F_vK_r^{-1}$. 
 \unboldmath
 
 
@@ -121,11 +120,11 @@ $$
 \beta = \frac{1}{{\mathbf{K}_r}_i^2} {\mathbf{F}_m}_i, 
 $$
 
-Passando a Laplace (con condizioni iniziali nulle):
+Passando a Laplace (con condizioni iniziali nulle) otteniamo:
 \begin{equation}\label{eq:single_joint_dynamic_laplace}
 (s\Gamma + \beta) \omega_m(s) = \tau_m(s) - d(s)
 \end{equation}
-e considerando $\omega_n(s)$ come uscita possiamo ottenere il circuito di fig. \ref{fig:decentralizedjointspacecontrol3} (da notare che questo è equivalente al modello mostrato in fig. \ref{fig:electricactuator4} con $C_i(s) = 1$).
+considerando $\omega_n(s)$ come uscita, otteniamo il circuito di fig. \ref{fig:decentralizedjointspacecontrol3} (da notare che questo è equivalente al modello mostrato in fig. \ref{fig:electricactuator4} con $C_i(s) = 1$).
 
 \begin{figure}[th!]
 	\centering
@@ -135,12 +134,12 @@ e considerando $\omega_n(s)$ come uscita possiamo ottenere il circuito di fig. \
 \end{figure}
 
 
-Cerchiamo ora di semplificare un po' il modello mostrato in fig. \ref{fig:decentralizedjointspacecontrol3}. Possiamo iniziare supponendo $L_a$ trascurabile, dato che le perdite ad essa associate sono solitamente molto piccole.
-Da (\ref{eq:armature_balance}) possiamo quindi rimuovere $L_a$ e otteniamo:
+Cerchiamo ora di semplificare un po' questo modello. Possiamo iniziare supponendo $L_a$ trascurabile, dato che le perdite ad essa associate sono solitamente molto piccole.
+Dall'equazione di equilibrio elettrico (\ref{eq:armature_balance}) possiamo quindi rimuovere $L_a$, e ottenere:
 $$
 V_a - R_aI_a = K_\omega \omega_m
 $$
-Allora ricordando che $I_a = \tau_m K_t^{-1}$ e sostituendo $\tau_m$ con l'espressione (\ref{eq:single_joint_dynamic_laplace}) otteniamo 
+Allora, ricordando che $I_a = \tau_m K_t^{-1}$ e sostituendo $\tau_m$ con l'espressione (\ref{eq:single_joint_dynamic_laplace}) otteniamo 
 $$
 V_a - R_a K_t^{-1} \tau_m = K_\omega \omega_m
 \implies
@@ -279,20 +278,18 @@ I parametri $K_P$ e $T_P$ devono essere scelti in modo da:
 
 Per calcolare meglio i requirements è possibile esprimere $W(s)$ in funzione di $\omega_n$ e $\zeta$:
 $$
-W(s) = \frac{(1+sT_P)/K_{TP}}{\left( 1 + \frac{2\zeta}{\omega_n} + \frac{s^2}{\omega_n^2} \right) (1+\tau s) }
+W(s) = \frac{\frac{1}{K_{TP}}(1+sT_P)}{\left( 1 + \frac{2\zeta}{\omega_n} + \frac{s^2}{\omega_n^2} \right) (1+\tau s) }
 $$
 
 Come possiamo vedere anche dal root locus:
 \begin{itemize}
 	\item Deve essere $T_P > T$ affinché si abbia asintotica stabilità
-	\item Se $T_P \gg T$ si velocizza la risposta del sistema (diventano dominanti i poli complessi coniugati)
-	\item Per $T_P \gg T$ ed elevati valori del guadagno $K_P$ la pulsazione del polo reale di $W(s)$ tende a quella dello zero ($\tau \approx T_P$) e quindi il sistema risulta rappresentato in prima approssimazione dalla sola dinamica del II° ordine associata ai poli complessi coniugati
+	\item Se $T_P \gg T$ si velocizza la risposta del sistema (diventano dominanti i poli complessi coniugati). Inoltre per elevati valori del guadagno $K_P$ la pulsazione del polo reale di $W(s)$ tende a quella dello zero ($\tau \approx T_P$) e quindi il sistema risulta rappresentato in prima approssimazione dalla sola dinamica del II° ordine associata ai poli complessi coniugati
 	\item La parte reale dei poli dominanti non può comunque essere inferiore a $-1/(2T)$
 \end{itemize}
 
-Applicando le regole dell'algebra dei blocchi, è possibile ricavare la funzione di trasferimento fra il disturbo $D$ e l’uscita $\theta_m$ del sistema: $\Theta_m(s) / D(s)$.
-
-\textbf{Il fattore di attenuazione del disturbo vale} $\mathbf{K_PK_{TP}}$. Valori troppo elevati di $K_P$ possono però portare ad avere oscillazioni inaccettabili sull’uscita (lo smorzamento $\zeta$ risulta troppo piccolo).\\
+Applicando le regole dell'algebra dei blocchi, è possibile anche ricavare la funzione di trasferimento fra il disturbo $D$ e l’uscita $\theta_m$ del sistema: $\Theta_m(s) / D(s)$.\\
+Da questa t.f. è possibile vedere che \textbf{il fattore di attenuazione del disturbo vale} $\mathbf{K_PK_{TP}}$. Valori troppo elevati di $K_P$ possono però portare ad avere oscillazioni inaccettabili sull’uscita (lo smorzamento $\zeta$ risulta troppo piccolo).\\
 Il tempo necessario per avere un’attenuazione significativa del disturbo è approssimabile come $T_R = max\{T_P, \frac{1}{\zeta \omega_n}\}$
 
 
@@ -325,7 +322,6 @@ W(s)=\frac{K_P K_V}{K_\omega s^2 + K_V K_{TV} s + K_{TP} K_P K_V}
 $$
 
 Saltando nuovamente la forma esplicita di $\Theta_m(s)/D(s)$, possiamo dire che in questo caso il \textbf{fattore di attenuazione del disturbo} è dato dal prodotto $\mathbf{K_P K_{TV} K_V}$, ormai completamente definito, avendo imposto $K_P$ e $K_V$ per imporre i poli desiderati.
-
 
 Aumentando il guadagno del feedback di posizione $K_P$, è possibile confinare i poli dell'anello chiuso in una regione del piano complesso con grandi valori assoluti della parte reale. Poi, la posizione effettiva può essere stabilita mediante una scelta adeguata di $K_V$.
 
@@ -366,7 +362,7 @@ possibile in questo caso:
 \end{figure}
 
 \textbf{Problema}:
-La misura dell’\textbf{accelerazione però non è solitamente disponibile}. Per implementare uno schema di controllo comprendente la retroazione dell’accelerazione risulterebbe necessario ricavarla indirettamente dalle misure disponibili.\\
+La misura dell’\textbf{accelerazione però non è solitamente disponibile}. Per implementare uno schema di controllo comprendente la retroazione dell’accelerazione risulterebbe necessario ricavarla indirettamente dalle misure disponibili.
 
 Avendo a disposizione la misura diretta della velocità, è possibile \textbf{stimare l’accelerazione} per mezzo di un filtro del primo ordine (vedi fig. \ref{fig:accelerationestimate}), purché avente banda sufficientemente ampia. Scegliendo questa larghezza di banda sufficientemente ampia, gli effetti dovuti ai ritardi di misurazione non sono un problema, e quindi è possibile prendere l'uscita del filtro di accelerazione come quantità per il feedback. Problemi possono comunque incorrere a causa del rumore presente sul segnale di accelerazione così ottenuto.
 
