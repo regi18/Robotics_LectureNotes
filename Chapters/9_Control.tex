@@ -1,0 +1,252 @@
+\chapter{Controllo}
+
+Il problema del controllo del moto di un manipolatore consiste nella \textbf{determinazione} dell’andamento temporale delle coppie generalizzate (\textbf{generalized torque)}, che gli attuatori devono applicare ai giunti \textbf{affinché venga eseguito il compito assegnato}, rispettando specifiche sul transitorio e sul comportamento in regime permanente.
+
+Lo schema di controllo può essere sviluppato:
+\begin{enumerate}
+	\item Nello \textbf{spazio dei giunti}
+	\item Nello \textbf{spazio operazionale}
+\end{enumerate}
+
+tenendo conto che la descrizione del compito è solitamente elaborata nello spazio operazionale, mentre le azioni di controllo esercitate dagli attuatori sono definite nello spazio dei giunti.\\
+
+\subsubsection{Joint space control}
+\begin{figure}[!ht]
+	\centering
+	\includegraphics[width=0.7\linewidth]{images/joint_control_1}
+	\caption{Schema generale di \textit{joint space control}}
+	\label{fig:jointcontrol1}
+\end{figure}
+
+L’azione di controllo fa sì che $q(t)$ insegua il vettore $q_d(t)$ della traiettoria desiderata ai giunti, ricavato dalla cinematica inversa (che è comodamente disaccoppiata dal controllo).
+
+\textbf{Svantaggio}: Non si ha nè un feedback, nè un controllo diretto sulla variabile dello spazio operazionale $\mathbf{p}$ $\implies$ dobbiamo avere una cinematica inversa perfetta (ma tolleranze di costruzione, elasticità ai giunti, giochi nei motoriduttori potrebbero causare imprecisioni nella posa della punta operativa).\\
+
+
+
+\subsubsection{Operational space control}
+\begin{figure}[ht!]
+	\centering
+	\includegraphics[width=0.7\linewidth]{images/operational_control_1}
+	\caption{Schema generale di \textit{operational space control}}
+	\label{fig:operationalcontrol1}
+\end{figure}
+
+Qui cerchiamo di fare inseguire un vettore $\mathbf{p}_d$ definito nello spazio operazionale. Con questa tecnica introduciamo una \textbf{complessità maggiore}, visto che la cinematica inversa è ora inclusa nel controllore. Il \textbf{vantaggio} però è quello di poter operare direttamente nello spazio operazionale.\\
+Anche se in primo luogo potrebbe non sembrare un vantaggio (la “misura” di $\mathbf{p}$ è spesso ricavata indirettamente da misure ai giunti per mezzo della cinematica diretta $\implies$ sembra come se si "ritorni" allo stesso svantaggio di imprecisione della cinematica inversa che c'era nel controllo sui giunti): questo controllo è però utile (ad esempio) come base per il controllo dell’interazione con l’ambiente.\\
+
+\subsubsection{Cosa vedremo}
+Vedremo che la presenza di \textbf{motoriduttori} con elevato rapporto di trasformazione tende a \textbf{linearizzare la dinamica} del manipolatore e quindi a disaccoppiare i giunti, grazie alla riduzione degli effetti non lineari $\implies$ si giustifica in tal caso l’adozione di una strategia di \textbf{controllo decentralizzato}, a giunti indipendenti. 
+
+Questo però introduce uno svantaggio: i motoriduttori introducono possibili fenomeni di elasticità, gioco ed attriti non lineari, talora più "fastidiosi" degli effetti di accoppiamento fra i giunti. L’utilizzo di \textbf{motori ad azione diretta} elimina questi problemi ma mantiene rilevanti gli effetti non lineari e di accoppiamento fra i giunti, che non possono essere trascurati o considerati come disturbi $\implies$ diventa opportuno in tal caso utilizzare una strategia di \textbf{controllo centralizzato}, che tenga conto della dinamica non lineare del manipolatore. Svantaggio: la legge di controllo è necessariamente non lineare e computazionalmente pesante.
+
+
+
+
+
+\section{Attuatori elettrici}
+Prima di introdurre i sistemi di controllo, iniziamo parlando di come poter modellare gli attuatori elettrici che andremmo ad utilizzare.
+
+Gli attuatori maggiormente impiegati sono motori elettrici in corrente continua comandati in armatura, corredati di un amplificatore di potenza e di un eventuale anello di retroazione della corrente di armatura: a seconda delle caratteristiche del regolatore inserito, il comportamento dell’attuatore può essere assimilato:
+\begin{itemize}
+	\item Ad un generatore di velocità controllata (\textbf{velocity controlled})
+	\item Ad un generatore di coppia controllata (\textbf{torque controlled})
+\end{itemize}
+
+In fig. \ref{fig:electricactuator1} possiamo vedere il modello del motore.
+
+\begin{figure}[th!]
+	\centering
+	\includegraphics[width=0.7\linewidth]{images/electric_actuator_1}
+	\caption{Modello del motorore comandato in armatura}
+	\label{fig:electricactuator1}
+\end{figure}
+
+Dove:
+\begin{itemize}
+	\item $\omega_m$ e $\theta_m$ sono la velocità e la posizione angolare dell’albero
+	motore
+	\item $V_a$ e $I_a$ sono la tensione e la corrente del circuito di armatura
+	\item $\tau_m$ è la coppia motrice, mentre $\tau_r$ è la coppia dovuta al carico
+\end{itemize}
+
+
+\subsection{Derivazione modello}
+
+Partendo dal modello illustrato in fig. \ref{fig:electricactuatorcircuit}, possiamo derivare il circuito mostrato in fig. \ref{fig:electricactuator1}.
+
+\begin{figure}[th!]
+	\centering
+	\includegraphics[width=0.7\linewidth]{electric_actuator_circuit.jpg}
+	\caption{Modello circuitale del motore}
+	\label{fig:electricactuatorcircuit}
+\end{figure}
+
+Il bilancio elettrico dell'armatura è definito da:
+\begin{align}\label{eq:armature_balance}
+L\frac{dI_a}{dt} + RI_a = V_a - V_b
+\quad
+\xRightarrow{\mathcal {L}}
+\quad
+\begin{aligned}
+V_a &= (R_a + sL_a)I_a + V_g\\
+V_g &= K_{\omega} \omega_m
+\end{aligned}
+\end{align}
+Dove $V_g$ è la \textbf{\textit{back-emf}}, ovvero la ogni talvolta che un conduttore si muove in un campo magnetico, ai suoi terminali viene generata una tensione $V_b$ proporzionale alla velocità del conduttore nel campo (cioè proporzionale a $\omega_m$). Questa tensione, chiamata \textit{back-emf}, tenderà ad opporsi al flusso di corrente nel conduttore.
+
+Mentre il bilancio meccanico è definito da:
+\begin{align}
+\tau_m &= (s\Gamma_m + \beta_m)\omega_m + \tau_r \\
+\tau_m &= K_i\Gamma_a
+\end{align}
+Dove $\Gamma_m$ e $\beta_m$ sono rispettivamente il momento d'inerzia e il coefficiente di attrito viscoso dell'albero motore.
+
+Questo deriva da:
+\begin{enumerate}
+	\item Ricordando da fisica 1: $F = ma \leftrightsquigarrow \tau = I\alpha$ dove $I$, $\alpha$ sono il momento di inerzia e l'accellerazione angolare
+	\item Considerando il motore: $\tau_m = \Gamma_m\dot{\omega}_m$
+	\item Ora aggiungiamo l'attrito viscoso (che come ricordiamo è proporzionale alla velocità): $\tau_m - \beta_m\omega_m = \Gamma_m\dot{\omega}_m$
+	\item Passiamo a Laplace: $\tau_m = \beta_m\omega_m + \Gamma_m s\omega_m \implies \tau_m = (s\Gamma_m + \beta_m)\omega_m \quad \square$ 
+\end{enumerate}
+
+
+\subsection{Amplificatore di potenza}
+Visto che solitamente $V_a$ ha valori elevati, si tende ad utilizzare un \textbf{amplificatore di potenza} per poter comandare il motore con una tensione $V_c \ll V_a$: il nuovo circuito è illustrato in fig. \ref{fig:electricactuator2}. 
+
+$G_v$ è il guadagno di tensione, mentre $T_v$ è una costante di tempo trascurabile (poiché nell’ordine di 10-100 kHz), di conseguenza il blocco dell’amplificatore di potenza può essere assimilato al solo guadagno $G_v$.
+
+
+\begin{figure}[th!]
+	\centering
+	\includegraphics[width=0.7\linewidth]{images/electric_actuator_2}
+	\caption{Modello motore con amplificatore di potenza}
+	\label{fig:electricactuator2}
+\end{figure}
+
+
+
+\subsection{Torque generator}
+
+Possiamo ora completare il circuito aggiungendo una retroazione sulla corrente $I_a$ e un compensatore che utilizzi tale feedback. Questo è illustrato in fig. \ref{fig:electricactuator3}.
+
+\begin{figure}[th!]
+	\centering
+	\includegraphics[width=0.7\linewidth]{images/electric_actuator_3}
+	\caption{Circuito motore in modalità torque generator}
+	\label{fig:electricactuator3}
+\end{figure}
+
+In questa modalità, come accennato, il motore si comporta come un \textit{torque-controlled generator}. Questo perchè, con $K_i \neq 0$, se si sceglie $K_i \gg R_a$ otteniamo il seguente steady-state:
+$$
+\tau_m \approx \frac{K_t}{K_i}(V^{'}_c - \frac{K_\omega}{G_v}\omega_m)
+\approx
+\frac{K_t}{K_i}V^{'}_c
+$$
+(supponendo $G_v \gg 1 \implies \frac{K_\omega}{G_v} \to 0$). Questo significa che possiamo impostare il torque del motore giocando sul voltaggio di controllo $V^{'}_c$, che sarà dipendente solo da quest'ultimo (e non, e.g., dalla velocità angolare).
+
+
+
+
+\subsection{Velocity generator}
+
+Se invece rimuoviamo il feedback di corrente, ovvero $K_i = 0$, possiamo vedere come sia possibile impostare a piacimento la velocità del motore (invece della coppia come in precedenza).
+
+\begin{figure}[th!]
+	\centering
+	\includegraphics[width=0.7\linewidth]{images/electric_actuator_4}
+	\caption{Circuito motore in modalità velocity generator}
+	\label{fig:electricactuator4}
+\end{figure}
+
+Analizzando questo caso, ricordandoci che il coefficiente di atttrito viscoso meccanico $\beta_m$ è trascurabile rispetto al coefficiente di attrito viscoso elettrico:
+$$
+\beta_m \ll \frac{K_\omega K_t}{R_a}
+$$
+Supponendo $C_i(s) = 1$ e $\tau_r = 0$, otteniamo:
+$$
+\omega_m \approx \frac{G_v}{K_\omega}V^{'}_c
+$$
+
+Ovvero, in questo caso, possiamo impostare la velocità angolare a piacere.
+
+
+
+\subsection{Torque generator \textit{vs.} Velocity generator}
+
+
+Quando ci conviene utilizzare uno invece che l'altro?
+In seguito vedremo che in tutte le applicazioni in cui è necessario ottenere un’elevata reiezione di coppie di disturbo, come nel caso del \textbf{controllo decentralizzato a giunti indipendenti}, è opportuno NON inserire l’anello di controllo in corrente ed utilizzare i motori come \textbf{generatori di velocità}.
+
+Al contrario, in caso di strategie di \textbf{controllo centralizzate}, è consigliabile introdurre l’anello di retroazione in corrente ed utilizzare i motori come \textbf{generatori di coppie} (opportuni accorgimenti vengono adottati in entrambi i casi per limitare la corrente ed evitare danni ai dispositivi).
+
+E' possibile vedere questa differenza calcolando le relazioni input/output fra $\omega_m$ e $V^{'}_c$, $\tau_r$. Da queste equazioni si può vedere che senza feedback di corrente (i.e. velocity-controlled generator) si ha una reiezione migliore della coppia di disturbo $\tau_r$: i coefficienti legati a $\tau_r$ in questo caso sono molto minori del caso torque-controlled ($\implies$ riduciamo di più gli effetti dei disturbi).
+
+Semplificando:
+\begin{align}
+\omega_m^{\text{velocity}} &= \alpha_{\text{velocity}} V^{'}_c + \lambda_{\text{velocity}}\tau_r \\
+\omega_m^{\text{torque}} &= \alpha_{\text{torque}} V^{'}_c + \lambda_{\text{torque}}\tau_r
+\end{align}
+
+se il primo è per il caso velocity-controlled, mentre il secondo per il caso torque-controlled abbiamo che $\lambda_{\text{velocity}} \ll \lambda_{\text{torque}}$.
+
+
+
+
+
+
+
+\section{Trasmissions {\small \textit{aka}} motoriduttori}
+Vediamo ora in dettaglio gli effetti che i motoriduttori utilizzati nel motore hanno sul sistema.
+
+\begin{figure}[th!]
+	\centering
+	\includegraphics[width=0.5\linewidth]{images/trasmission_1}
+	\caption{Motoriduttore}
+	\label{fig:trasmission1}
+\end{figure}
+
+
+In generale, se indichiamo con $k_r$ il rapporto di trasformazione (\textit{gear-ratio}) di un motoriduttore ideale, abbiamo che:
+$$
+\theta_m = k_r\theta
+$$
+ove $\theta_m$ è la posizione angolare dell’albero motore e $\theta$ è la posizione angolare sul secondario (giunto). Dove $k_r$ è definito come il rapporto fra i due \textit{gears}:
+$$
+k_r = \frac{r}{r_m} = \frac{\theta_m}{\theta} = \frac{\omega_m}{\omega}
+$$
+
+Considerando attriti viscosi e coppie, possiamo scrivere le equazioni di equilibrio:
+
+$$
+\begin{array}{l c r}
+	{\tau_{_\mathrm{m}}=\Gamma_{_\mathrm{m}}\dot{\omega}_{\mathrm{m}}+\beta_{_\mathrm{m}}\omega_{\mathrm{m}}+\mathrm{fr}_{_{\mathrm{m}}}}\\ {\mathrm{fr}=\Gamma\dot{\omega}+\beta_{_\mathrm{g}}\omega+\tau_{\mathrm{d}}}
+\end{array}
+$$
+
+(La forza $f$ scambiata tra i due ingranaggi genera una coppia di reazione $fr_m$ per il moto all'asse del motore ed una coppia motrice $fr$ per il moto di rotazione del carico).\\
+Dopo alcuni passaggi si ottiene:
+
+$$
+\tau_m = \left( \Gamma_m + \frac{\Gamma}{k_r^2} \right) \dot{\omega}_n
++
+\left( \beta_m + \frac{\beta_g}{k_r^2} \right)\omega_m
++
+\frac{\tau_d}{k_r}
+$$
+
+Notiamo che qualunque coppia applicata sul secondario è riportata sul primario ridotta del fattore $k_r$ (e viceversa). \\
+Poiché $\mathbf{k_r}$ \textbf{è elevato}, l’effetto di coppie di \textbf{disturbo} agenti sul secondario risulta \textbf{fortemente ridotto} sul primario. Se tali coppie dipendono non-linearmente da $\theta$, allora la presenza di un alto fattore di riduzione tende a \textbf{linearizzare il sistema}.
+
+Nel caso vettoriale (molteplici giunti), possiamo riscrivere alcune utili relazioni:
+
+\begin{align}
+	\mathbf{q}_m = \mathbf{K}_r\mathbf{q} \label{eq:trasmission_reduction}\\\
+	\boldsymbol{\tau}_m = \mathbf{K}_r^{-1} \boldsymbol{\tau} \label{eq:trasmission_reduction_torque}
+\end{align}
+
+Dove quest'ultima deriva dal fatto che con l'aumentare del \textit{gear-ratio} si diminiusce la velocità angolare ma si aumenta il torque (e viceversa).
+
+\input{Chapters/9_Control/9_1_Control_decentralized.tex}
+\input{Chapters/9_Control/9_2_Control_centralized.tex}
+

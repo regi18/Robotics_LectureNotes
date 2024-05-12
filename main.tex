@@ -1,0 +1,65 @@
+\documentclass[a4paper, 12pt]{report}
+\usepackage{graphicx} % Required for inserting images
+\usepackage[T1]{fontenc}
+\usepackage[italian]{babel}
+\usepackage[utf8]{inputenc}
+\usepackage{graphicx}
+\usepackage{titlesec}
+\usepackage{xcolor}
+\usepackage{amsfonts}
+\usepackage{wrapfig}
+\usepackage{amssymb}
+\usepackage{amsbsy}
+\usepackage{float}
+\usepackage[makeroom]{cancel}
+\usepackage[framemethod=tikz]{mdframed}
+\usepackage{mathtools}
+
+% In case of an image at the bottom, but the footnote below the image
+% (without this the image will be below the footnote)
+\usepackage[bottom]{footmisc}
+
+\usepackage{glossaries}
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}{Definition}
+\newtheorem{proposition}{Proposition}
+\usepackage{tikz}
+\tikzstyle{mybox} = [draw=black, thin, rectangle, rounded corners, inner ysep=5pt, inner xsep=5pt, fill=orange!20]
+
+
+\newenvironment{proof}
+{\begin{mdframed}[leftmargin=15pt, rightmargin=15pt, leftline=false, rightline=false] \textit\bgroup}
+{\egroup\hfill $\square$\end{mdframed}}
+
+
+
+
+\usepackage[a4paper, top=2cm , bottom=2cm , right=2cm , left=2cm ]{geometry}
+
+\graphicspath{ {images/} }
+
+\titlespacing{\title}{10pt}{50pt}{50pt}
+\titlespacing{\chapter}{0pt}{10pt}{10pt}
+\titlespacing{\section}{0pt}{30pt}{10pt}
+
+\title{
+    \textbf{\Huge{ROBOTICS}}\\
+    \textit{Lecture notes}
+}
+\author{Simone Carletti}
+\date{A.Y. 2023/2024}
+
+\usepackage[parfill]{parskip}
+
+\begin{document}
+\maketitle
+\tableofcontents
+
+
+%---------------------------------------------------------------------
+
+\input{Chapters/9_Control}
+
+
+
+\end{document}
