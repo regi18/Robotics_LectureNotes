@@ -33,9 +33,9 @@ $$
 B(q)\ddot{q} + C(q, \dot{q})\dot{q} + F_{\text{v. mech.}}\dot{q} + g(q) = K_r K_t R_a^{-1}G_v V_c - K_rK_tR_a^{-1}K_\omega K_r
 $$
 Ovvero, raccogliendo i termini a destra (ricordando che originalmente quello era $\tau$):
-$$
+\begin{equation}\label{eq:torque_command}
 \tau =  K_r K_t R_a^{-1}(G_v V_c - K_\omega K_r \dot{q})
-$$
+\end{equation}
 Quello che otteniamo fra le parentesi è l'espressione ipotizzata inizialmente.\\
 (la quasi uguaglianza viene dal fatto che $K_r \gg 1$, $R_a$ molto piccolo, $\tau$ non troppo grosso).
 }
@@ -136,9 +136,9 @@ considerando $\omega_n(s)$ come uscita, otteniamo il circuito di fig. \ref{fig:d
 
 Cerchiamo ora di semplificare un po' questo modello. Possiamo iniziare supponendo $L_a$ trascurabile, dato che le perdite ad essa associate sono solitamente molto piccole.
 Dall'equazione di equilibrio elettrico (\ref{eq:armature_balance}) possiamo quindi rimuovere $L_a$, e ottenere:
-$$
+\begin{equation}\label{eq:simplified_armature_electrical_balance}
 V_a - R_aI_a = K_\omega \omega_m
-$$
+\end{equation}
 Allora, ricordando che $I_a = \tau_m K_t^{-1}$ e sostituendo $\tau_m$ con l'espressione (\ref{eq:single_joint_dynamic_laplace}) otteniamo 
 $$
 V_a - R_a K_t^{-1} \tau_m = K_\omega \omega_m
