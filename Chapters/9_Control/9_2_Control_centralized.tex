@@ -322,3 +322,81 @@ allora abbiamo che l'\textbf{origine} $\mathbf{x} = 0$ è \textbf{asintoticament
 
 
 \section{Controllo nello spazio operazionale}
+La \textbf{traiettoria} desiderata da applicare al manipolatore è \textbf{spesso pianificata nello spazio operazionale}, mentre gli schemi di controllo analizzati finora sono tutti definiti nello spazio dei giunti.
+\textbf{In tutti questi casi}, il riferimento di posizione ai giunti deve essere determinato a partire da quello cartesiano per mezzo della \textbf{cinematica inversa} (i riferimenti di velocità ed accelerazione sono spesso determinati per differenziazione numerica, dato che la cinematica inversa delle velocità e soprattutto delle accelerazioni può risultare troppo gravosa).
+
+Una diversa soluzione al problema può essere trovata definendo lo \textbf{schema di controllo direttamente nello spazio operazionale} anziché in quello dei giunti. \\
+Poiché le variabili disponibili (misurabili) sono quelle ai giunti (posizione ed eventualmente la velocità), è necessario in questo caso utilizzare la \textbf{cinematica diretta} per determinare le variabili cartesiane da confrontare con il riferimento desiderato. Si definiscono così anelli di controllo in retroazione in cui \textbf{l’inversione cinematica della traiettoria è sostituita dalla trasformazione delle coordinate}, racchiusa nell’anello di controllo stesso.
+
+Tutti gli \textbf{schemi di controllo realizzati nello spazio operazionale sono “pesanti”} dal punto di vista computazionale: questo può portare a serie limitazioni sulla scelta del passo di campionamento e conseguentemente a degradate prestazioni del controllo. Nonostante questo, a differenza degli schemi di controllo nello spazio dei giunti (che sono solitamente idonei ad ottenere un buon controllo del moto), gli schemi di controllo nello spazio operazionale sono basilari nel caso in cui il manipolatore sia in \textbf{contatto con l’ambiente esterno} ed il compito da svolgere richieda (anche) il \textbf{controllo delle forze scambiate}.
+
+Gli schemi di controllo nello spazio operazionale sono tipicamente riconducibili a due schemi generali:
+\begin{itemize}
+	\item \textbf{Controllo a Jacobiano inverso}
+	\item \textbf{Controllo a Jacobiano trasposto}
+\end{itemize}
+
+\boldmath
+In entrambi i casi nel ramo in retroazione viene inserita la cinematica diretta per la determinazione di $p$ a partire da $q$; il vettore $p$ viene poi confrontato con il vettore $p_d$ della traiettoria desiderata pianificata, costruendo così il vettore dell’errore (o deviazione) nello spazio operazionale: $\Delta p \triangleq p_d - p$ (dal puto di vista della notazione il Siciliano usa $x$: $p \equiv x$).
+
+
+
+
+
+
+\subsection{Controllo a Jacobiano inverso}
+Negli schemi a Jacobiano inverso si presuppone che la deviazione $\Delta p$ sia sufficientemente piccola e che quindi la corrispondente deviazione nello spazio dei giunti possa essere calcolata attraverso lo Jacobiano inverso come:
+$$
+\Delta q = J_a^{-1}(q) \Delta p
+$$
+Il sistema risultante può essere visto come un sistema meccanico con una molla generalizzata a n dimensioni nello spazio dei giunti, la cui rigidezza è data dalla matrice dei guadagni. Il ruolo di tale sistema è portare la deviazione $\Delta q$ a zero. Se la matrice dei guadagni è diagonale, la molla generalizzata corrisponde a n elementi elastici indipendenti, uno per ogni giunto.
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.7\linewidth]{images/operational_space_control_inv_jac}
+	\caption{Schema a Jacobiano inverso}
+	\label{fig:operationalspacecontrolinvjac}
+\end{figure}
+
+
+
+
+
+
+
+\subsection{Controllo a Jacobiano trasposto}
+Negli schemi a Jacobiano trasposto l’errore $\Delta p$ nello spazio operazionale viene direttamente moltiplicato per una matrice di guadagni.
+L’uscita di tale blocco può essere considerata come la forza elastica generata da una molla generalizzata, la cui funzione è di ridurre o cancellare la deviazione $\Delta p$. In altre parole la forza risultante guida la punta operativa lungo una direzione tale ridurre $\Delta p$.\\
+La forza elastica definita nello spazio operazionale viene quindi trasformata nella corrispondente coppia da applicare ai giunti per mezzo dello Jacobiano trasposto (secondo le relazioni della statica viste).
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.7\linewidth]{images/operational_space_control_jac_trasp}
+	\caption{Schema a Jacobiano trasposto}
+	\label{fig:operationalspacecontroljactrasp}
+\end{figure}
+
+
+\textbf{Per questi schemi generali} (sia questo che quello a Jacobiano inverso) \textbf{non è né garantita la stabilità asintotica} né l’accuratezza di inseguimento della traiettoria, che dovranno essere assicurate dall’impiego di specifiche leggi di controllo, inserite in schemi dell’uno o dell’altro tipo.
+
+
+
+
+
+
+\subsection{Controllo PD con compensazione della gravità}
+Vediamo nuovamente una tecnica di controllo PD con compensazione della gravità, questa volta però nello spazio operazionale.
+
+Sia $p_d$ la posa costante desiderata per la punta operativa; \textbf{obiettivo} del controllo è \textbf{garantire} che \textbf{asintoticamente} si abbia $p_d - p = 0$.\\
+È possibile dimostrare che tale richiesta è soddisfatta dalla legge di controllo:
+$$
+u = g(q) + J_a^T(q)(K_P(p_d - p) - K_DJ_a(q)\dot{q})
+$$
+costituita da una compensazione non lineare delle coppie di gravità, definita nello spazio dei giunti, e da una legge lineare di tipo PD definita nello spazio operazionale.
+
+\subsubsection{Dimostrazione stabilità}
+Con passaggi simili a quelli seguiti nello spazio dei giunti, si può dimostrare che il sistema raggiunge una postura di equilibrio asintoticamente stabile.
+Partiamo nuovamente selezionando una funzione di Lyapunov (di nuovo $e \triangleq p_d - p$):
+$$
+V(\dot{q}, e) = TODO
+$$
