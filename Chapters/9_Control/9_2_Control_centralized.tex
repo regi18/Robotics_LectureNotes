@@ -1,4 +1,4 @@
-\section{Controllo centralizzato}
+\section[Controllo centralizzato ai giunti]{Controllo centralizzato ai giunti \\ \small \textit{Centralized Joint Space Control}}
 
 In alcuni casi il \textbf{controllo decentralizzato} a giunti indipendenti \textbf{può risultare inadeguato}. Questo accade, ad esempio, quando:
 \begin{itemize}
@@ -67,9 +67,9 @@ L’approccio di controllo a dinamica inversa è basato sull’idea di ottenere 
 
 Prima di cominciare, per comodità definiamo il modello della dinamica come:
 \boldmath
-$$
+\begin{equation}\label{eq:simplified_notation_dynamic}
 B(q)\ddot{q} + n(q, \dot{q}) = \tau = u
-$$
+\end{equation}
 dove:
 $$
 n(q, \dot{q}) \triangleq C(q, \dot{q})\dot{q} + F_v\dot{q} + g(q)
@@ -101,13 +101,13 @@ Il sistema risultante è costituito da n doppi integratori: la i-esima component
 
 La scelta più semplice per il nuovo comando $\mathbf{y}$ è data da una legge di \textbf{controllo di tipo PD}:
 $$
-y = -K_p q - K_D \dot{q} + r
+y = -K_P q - K_D \dot{q} + r
 $$
 
 che quindi, sostituiendo a $\ddot{q} = y$, otteniamo il seguente sistema di equazioni del secondo ordine:
-$$
-\ddot{q} + K_p q + K_D \dot{q} = r
-$$
+\begin{equation}\label{eq:2nd_order_dyn_feedback_lin}
+\ddot{q} + K_D \dot{q} + K_P q = r
+\end{equation}
 asintoticamente stabile se le matrici $K_P$ e $K_D$ sono definite positive.
 Scegliendo in particolare $K_P$ e $K_D$ diagonali, il sistema rimane disaccoppiato e ad ogni variabile giunto viene assegnata la dinamica corrispondente ai guadagni imposti con:
 \unboldmath
@@ -117,8 +117,208 @@ $$
 \mathbf{K_D} = diag\{2\zeta\omega_{n1}, \ \dots, \ 2\zeta\omega_{nn}^2\}
 $$
 
+\boldmath
+Il vettore di riferimento $r$ è definito a partire dalla traiettoria desiderata, pianificata ai giunti, come:
+$$
+r \triangleq \ddot{q}_d + K_D \dot{q}_d + K_P q_d 
+$$
+Possiamo ora analizzare la dinamica dell'errore di inseguimento, sostituendo la definizione di $r$ a (\ref{eq:2nd_order_dyn_feedback_lin}):
+$$
+(\ddot{q}_d - \ddot{q}) + K_D(\dot{q}_d - \dot{q}) + K_P(q_d - q) = 0
+\implies
+\ddot{e} + K_D\dot{e} + K_Pe = 0
+$$
+se $e(0) = 0$ e $\dot{e}(0) = 0$, l'errore converge a 0 con velocità e caratteristiche determinate da $K_P$ e $K_D$.
+\unboldmath
+
+Il sistema risultante è mostrato in fig. \ref{fig:centralizedcontrol2}, dove notiamo due anelli: quello più interno è l'anello di linearizzazione, mentre quello esterno è il controllo (ora lineare) del nostro sistema.
+
+\begin{figure}
+	\centering
+	\includegraphics[width=0.7\linewidth]{images/centralized_control_2}
+	\caption{Schema a blocchi del controllo a dinamica inversa nello spazio dei giunti}
+	\label{fig:centralizedcontrol2}
+\end{figure}
 
 
-\hl{TODO DA SLIDE 12}
+\vspace{20pt}
+\subsubsection{Problemi}
+L’ipotesi di linearizzazione esatta presuppone la capacità di calcolare \textit{online} le matrici $\mathbf{B(q)}$ e $\mathbf{n(q, \dot{q})}$ in modo esatto. Nella pratica però questo non è sempre possibile.
+Per compensare a questi errori è necessario utilizzare altre tecniche, ad esempio algoritmi di controllo robusto.
+
+Supponiamo di avere solo delle approssimazioni delle matrici, che chiameremo $\mathbf{\hat{B}(q)}$ e $\mathbf{\hat{n}(q, \dot{q})}$:
+\boldmath
+\begin{gather*}
+B(q)\ddot{q} + n(q, \dot{q}) = \hat{B}(q)y + \hat{n}(q, \dot{q}) \\
+\Updownarrow \\
+\ddot{q} = B^{-1}\hat{B}y + B^{-1}(\hat{n} - n) \\
+\Updownarrow \\
+\ddot{q} = y + (B^{-1}\hat{B} - I)y + B^{-1}(\hat{n} - n) \\
+\Updownarrow \\
+\ddot{q} = y - \eta(q, \dot{q}, y) \\
+\Downarrow \\
+\ddot{e} + K_D\dot{e} + K_Pe = \eta(q, \dot{q}, y)
+\end{gather*}
+
+where
+$$
+\eta(q, \dot{q}, y) \triangleq (I - B^{-1}\hat{B})y - B^{-1}(\hat{n} - n)
+$$
+
+Il sistema ottenuto non è più lineare e disaccoppiato.
+
+Per fortuna, \textbf{nella pratica}, il metodo della dinamica inversa \textbf{risulta abbastanza robusto} anche nel caso di linearizzazione approssimata, per cui viene usato sia senza ulteriori modifiche, sia con l’aggiunta di un termine robustificante.\\
+
+\vspace{10pt}
+\subsubsection{Vari schemi visti come dinamica inversa}
+Tra gli schemi a dinamica inversa con linearizzazione approssimata, che non prevedono l’inserimento di termini robustificanti, possiamo includere:
+\begin{itemize}
+	\item \textbf{Controllo a giunti indipendenti}: questo approccio precedentemente analizzato può essere considerato come un caso particolare di controllo a dinamica inversa con linearizzazione approssimata, ottenuto ponendo:
+	$$
+	\hat{B}(q) = \bar{B} \quad , \quad \hat{n}(q, \dot{q}) = 0
+	$$
+	\item \textbf{Metodo della coppia calcolata} (o controllo a dinamica inversa in feedforward): già visto in sezione \ref{section:computed_torque}
+	\item \textbf{Controllo PD con compensazione della gravità}, che vediamo nella prossima sezione; questo controllo può essere visto come dinamica inversa ponendo:
+	$$
+	\hat{B}(q) = I \quad , \quad \hat{n}(q, \dot{q}) = g(q)
+	$$
+\end{itemize}
+\unboldmath
 
 
+
+
+
+
+
+
+
+\subsection{Controllo PD con compensazione della gravità}
+
+Nel caso in cui si voglia assegnare al manipolatore una \textbf{postura di equilibrio costante} (anziché una traiettoria completa), è possibile realizzare un controllore tale da garantire la stabilità asintotica globale di tale postura.
+
+Facendo riferimento a (\ref{eq:simplified_armature_electrical_balance}): $B(q)\ddot{q} + n(q, \dot{q}) = u$, definiamo il controllo come:
+\boldmath
+$$
+u \triangleq g(q) + K_P(q_d - q) - K_D\dot{q}
+$$
+
+Così facendo, sostituendo $u$ a (\ref{eq:simplified_armature_electrical_balance}), otteniamo:
+\begin{equation}\label{eq:pd_gravity_comp_dyn}
+B(q)\ddot{q} + C(q, \dot{q})\dot{q} + F_v\dot{q} + \cancel{g(q)} = \cancel{g(q)} + K_P(q_d - q) - K_D\dot{q}
+\end{equation}
+
+Ovvero si riescono a cancellare gli effetti della gravità.
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.6\linewidth]{images/centralized_control_pd_gravity_comp}
+	\caption{Controllo PD con compensazione della gravità}
+	\label{fig:centralizedcontrolpdgravitycomp}
+\end{figure}
+(notare che nel circuito non è presente $\dot{q}_d$: questo poichè essendo $q_d$ costante la sua derivata è nulla)
+
+Analizzando il sistema risultante da (\ref{eq:pd_gravity_comp_dyn}), possiamo vedere che l'unico punto di equilibrio è dato da $q = q_d$:
+\unboldmath
+\begin{align*}
+x \ \text{punto di equilibro} 
+&\iff 
+\dot{x} = \begin{pmatrix}\dot{q} \\ \ddot{q}\end{pmatrix} = 0
+\stepcounter{equation}\tag{\theequation}\label{eq:pd_grav_comp_equil} \\
+&\iff 
+B(q)\cancelto{0}{\ddot{q}} + C(q, \dot{q})\cancelto{0}{\dot{q}} + F_v\cancelto{0}{\dot{q}} = K_P(q_d - q) - K_D\cancelto{0}{\dot{q}} \\
+&\iff
+0 = K_P(q_d - q) \\
+&\iff
+q = q_d
+\end{align*}
+
+Ovvero proprio quello che volevamo: stabilità in una postura costante $\mathbf{q}_d$.\\
+Per fare un esempio, immagina il robot in figura \ref{fig:centralizedcontrolpdgravitycompexample}: il motori dovranno applicare delle coppie (i quali valori dipendono dal valore di $\mathbf{u}$ mostrato prima) per far rimanere il braccio in questa posizione statica.
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.5\linewidth]{images/centralized_control_pd_gravity_comp_example}
+	\caption{Esempio di compensazione gravità}
+	\label{fig:centralizedcontrolpdgravitycompexample}
+\end{figure}
+
+
+
+
+\vspace{20pt}
+\subsubsection{Dimostrazione stabilità}
+\boldmath
+Per dimostrare le caratteristiche di stabilità del punto di equilibrio corrispondente alla postura desiderata, è possibile applicare il \textbf{metodo diretto di Lyapunov}. Definiamo $e \triangleq q_d - q$ e consideriamo come funzione di Lyapunov:
+$$
+V(\dot{q}, e) = \frac{1}{2}\dot{q}^TB(q)\dot{q} + \frac{1}{2}e^TK_Pe > 0    \qquad \forall q,e\neq0
+$$
+Dove possiamo interpretare il primo termine come l’energia cinetica del sistema ed il secondo come l’energia potenziale immagazzinata grazie alle rigidezze equivalenti date dai guadagni delle retroazioni delle posizioni ai giunti.
+
+In questa funzione è stato scelto come stato del sistema il vettore $(e, \ \dot{q})^T$ che, dal punto di vista dell'equilibro, è equivalente a quanto usato in (\ref{eq:pd_grav_comp_equil}):
+\begin{gather*}
+\gamma \triangleq \begin{pmatrix}e \\ \dot{q}\end{pmatrix} = \begin{pmatrix}q - q_d \\ \dot{q}\end{pmatrix}
+\implies 
+\dot{\gamma} = \begin{pmatrix}\dot{e} \\ \ddot{q}\end{pmatrix} = \begin{pmatrix}\dot{q} - \cancelto{0}{\dot{q}_d} \\ \ddot{q}\end{pmatrix} = \begin{pmatrix}\dot{q} \\ \ddot{q}\end{pmatrix}
+\end{gather*}
+
+
+
+Ora passiamo allo studio del segno di $V$ lungo le traiettorie del sistema (come è richiesto dal metodo di Lyapunov). Derivando (ricordando che $\dot{q}_d = 0$, essendo $q_d$ costante), otteniamo:
+$$
+\dot{V} = \dot{q}^TB(q)\ddot{q} + \frac{1}{2}\dot{q}\dot{B}(q)\dot{q} - \dot{q}^TK_Pe
+$$
+procediamo sostituendo a $B(q)\ddot{q}$ la forma di esso fornita da (\ref{eq:pd_gravity_comp_dyn}) (ricordando la definizione di $e \triangleq q_d - q$):
+\begin{gather*}
+	B(q)\ddot{q} + C(q, \dot{q})\dot{q} + F_v\dot{q} = K_Pe - K_D\dot{q} \\
+	\Updownarrow \\
+	B(q)\ddot{q} = -C(q, \dot{q})\dot{q} - F_v\dot{q} + K_Pe - K_D\dot{q} \\
+	\Downarrow \\
+	\dot{V} = \dot{q}^T( -C(q, \dot{q})\dot{q} - F_v\dot{q} + \cancel{K_Pe} - K_D\dot{q} ) + \frac{1}{2}\dot{q}\dot{B}(q)\dot{q} - \dot{q}^T \cancel{K_Pe}
+\end{gather*}
+
+Raccogliendo i termini rimasti si ha
+$$
+\dot{V} = \frac{1}{2} \dot{q}^T ( \cancelto{0}{ \dot{B}(q) - 2C(q, \dot{q}) })\dot{q} - \dot{q}^T (F_v + K_D)\dot{q}
+$$
+dove la cancellazione a 0 è fatta grazie alla \textit{null-property} di quella differenza (si può dimostrare dalle equazioni della dinamica).
+
+Allora:
+$$
+\dot{V} = - \dot{q}^T (F_v + K_D)\dot{q}
+$$
+che risulta essere \textbf{semi-definita negativa}. È solo \textbf{semi}-definita poichè è presente solo $\dot{q}$: $\dot{V} = 0$ per $\dot{q} = 0$ ma per qualsiasi $e$.
+
+Possiamo però ora osservare che comunque $\dot{V} = 0 \iff \dot{q} = 0$, e di conseguenza anche $\ddot{q} = 0$. Ricordando da (\ref{eq:pd_grav_comp_equil}) che $(\dot{q}, \ddot{q}) = (0,0)$ è la condizione di equilibrio, possiaom dire che $\dot{V}$ si annulla solo per l'unico punto di equilibrio del sistema.
+Dal teorema di \textit{La Salle-Krasowski} risulta pertanto globalmente asintoticamente stabile, come desiderato.
+\unboldmath
+
+\vspace{15pt}
+\begin{addendum}
+\textbf{Thm.} La Salle-Krasowski
+
+Supponi che un sistema dinamico sia rappresentato da $\dot{\mathbf{x}}=f(\mathbf{x})$, dove $\mathbf{x}$ è il vettore dello stato e $f(\mathbf{0})=0$.\\
+Se prendiamo una funzione $V$ tale che:
+$$
+\begin{cases}
+	V(\mathbf{x}) > 0 \\
+	\dot{V(\mathbf{x})} \leq 0
+\end{cases}
+$$
+(i.e. $V$ positiva e $\dot{V}$ semi-definita negativa), \textbf{ma}
+$$
+\dot{V}(\mathbf{x}) = 0 \iff \mathbf{x} = 0
+$$
+allora abbiamo che l'\textbf{origine} $\mathbf{x} = 0$ è \textbf{asintoticamente stabile}.
+\end{addendum}
+
+
+
+
+
+
+
+
+
+
+\section{Controllo nello spazio operazionale}

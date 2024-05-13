@@ -1,9 +1,10 @@
 \documentclass[a4paper, 12pt]{report}
+\usepackage[a4paper, top=2cm , bottom=2cm , right=2cm , left=2cm ]{geometry}
+
 \usepackage{graphicx} % Required for inserting images
 \usepackage[T1]{fontenc}
 \usepackage[italian]{babel}
 \usepackage[utf8]{inputenc}
-\usepackage{graphicx}
 \usepackage{titlesec}
 \usepackage{xcolor}
 \usepackage{amsfonts}
@@ -15,6 +16,22 @@
 \usepackage[makeroom]{cancel}
 \usepackage[framemethod=tikz]{mdframed}
 \usepackage{mathtools}
+
+% Modifica lo stile dell'header
+\usepackage{fancyhdr}         
+\pagestyle{fancy}
+\fancyhf{}
+% Imposta come header: sezione_corrente <spazio> numero_pagina
+\lhead{\rightmark}
+\rhead{\textbf{\thepage}}
+% Rimuove il numero di pagina all'inizio dei capitoli
+\fancypagestyle{plain}{
+  \fancyfoot{}
+  \fancyhead{}
+  \renewcommand{\headrulewidth}{0pt}
+}
+% Do not capitalize section name in header
+\renewcommand{\sectionmark}[1]{\markright{\thesection.\ #1}{}}
 
 % In case of an image at the bottom, but the footnote below the image
 % (without this the image will be below the footnote)
@@ -32,10 +49,13 @@
 {\begin{mdframed}[leftmargin=15pt, rightmargin=15pt, leftline=false, rightline=false] \textit\bgroup}
 {\egroup\hfill $\square$\end{mdframed}}
 
+\newenvironment{addendum}
+{\begin{mdframed}[leftmargin=15pt, rightmargin=15pt, leftline=false, rightline=false] \textit\bgroup}
+%{\egroup\hfill {\rotatebox[origin=c]{45}{$\square$}}\end{mdframed}}
+{\egroup\hfill $\diamond$\end{mdframed}}
 
 
 
-\usepackage[a4paper, top=2cm , bottom=2cm , right=2cm , left=2cm ]{geometry}
 
 \graphicspath{ {images/} }
 

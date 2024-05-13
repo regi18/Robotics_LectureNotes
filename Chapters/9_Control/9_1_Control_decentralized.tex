@@ -1,4 +1,4 @@
-\section{Controllo decentralizzato a giunti indipendenti \\ {\small \textit{Decentralized Joint Space Control}}}
+\section[Controllo decentralizzato a giunti indipendenti]{Controllo decentralizzato a giunti indipendenti \\ {\small \textit{Decentralized Joint Space Control}}}
 
 Nel controllo decentralizzato a giunti indipendenti \textbf{ogni} singolo \textbf{giunto} attuato è considerato come un \textbf{sottosistema SISO disaccoppiato e indipendente}, descritto da un modello dinamico approssimato. Gli \textbf{effetti di accoppiamento} non-lineari presenti nella dinamica propria del robot sono \textbf{considerati come disturbi}.
 
@@ -425,7 +425,7 @@ Si noti che, in generale, calcolare derivate non è possibile (perchè dovremmo 
 
 
 
-\subsection{Computed torque	feedworward control}
+\subsection{Computed torque	feedworward control}\label{section:computed_torque}
 È possibile aggiungere un altro blocco di feedforward.
 Richiamando (\ref{eq:dynamic_with_disturbances}):
 \boldmath
@@ -450,6 +450,5 @@ Ponendo $q\equiv q_d$ ci basta usare (\ref{eq:dynamic_disturbances}) per calcola
 	\caption{Circuit with computed torque feedworward control}
 	\label{fig:computedtorque}
 \end{figure}
-
 
 
