@@ -384,19 +384,36 @@ La forza elastica definita nello spazio operazionale viene quindi trasformata ne
 
 
 
-\subsection{Controllo PD con compensazione della gravità}
+\subsection{Controllo PD con compensazione della gravità}\label{section:pd_control_gravity_comp_join_space}
 Vediamo nuovamente una tecnica di controllo PD con compensazione della gravità, questa volta però nello spazio operazionale.
 
 Sia $p_d$ la posa costante desiderata per la punta operativa; \textbf{obiettivo} del controllo è \textbf{garantire} che \textbf{asintoticamente} si abbia $p_d - p = 0$.\\
 È possibile dimostrare che tale richiesta è soddisfatta dalla legge di controllo:
-$$
-u = g(q) + J_a^T(q)(K_P(p_d - p) - K_DJ_a(q)\dot{q})
-$$
+\begin{equation}\label{eq:pd_gravity_comp_control_operational}
+u = g(q) + J_A^T(q)(K_P(p_d - p) - K_DJ_A(q)\dot{q})
+\end{equation}
 costituita da una compensazione non lineare delle coppie di gravità, definita nello spazio dei giunti, e da una legge lineare di tipo PD definita nello spazio operazionale.
 
+\vspace{5pt}
 \subsubsection{Dimostrazione stabilità}
 Con passaggi simili a quelli seguiti nello spazio dei giunti, si può dimostrare che il sistema raggiunge una postura di equilibrio asintoticamente stabile.
 Partiamo nuovamente selezionando una funzione di Lyapunov (di nuovo $e \triangleq p_d - p$):
 $$
-V(\dot{q}, e) = TODO
+V(\dot{q}, e) = \frac{1}{2}\dot{q}^TB(q)\dot{q} + \frac{1}{2}e^TK_Pe > 0 \qquad \forall \dot{q},e \neq 0
 $$
+e analizziamone il segno:
+$$
+\dot{V} = \dot{q}^TB(q)\ddot{q} + \frac{1}{2}\dot{B}(q)\dot{q} + \dot{e}K_Pe = \dot{q}^TB(q)\ddot{q} + \frac{1}{2}\dot{B}(q)\dot{q} - \dot{q}^TJ_A^T(q)K_Pe
+$$
+dove abbiamo usato il fatto che $\dot{x}_d = 0 \ , \ \dot{x}=J_A(q)\dot{q} \implies \dot{e} = \dot{x}_d - \dot{x} = - J_A(q)\dot{q}$.
+Raccogliendo, richiamando di nuovo la \textit{null-property} di $\dot{B}(q) - 2C(q, \dot{q})$ e sostituendo a $B(q)\ddot{q}$ la forma di esso fornito da (\ref{eq:pd_gravity_comp_dyn}), otteniamo:
+$$
+\dot{V} = -\dot{q}^TF\dot{q} + \dot{q}^T(u - g(q) - J_A^T(q)K_Pe)
+$$
+dove, se sostituiamo ad $u$ la forma del controllo di (\ref{eq:pd_gravity_comp_control_operational}), otteniamo:
+$$
+\dot{V} = -\dot{q}^TF\dot{q} - \dot{q}^TJ_A^T(q)K_DJ_A(q)\dot{q}
+$$
+% e possiamo vedere che, per qualsiasi traiettoria del sistema, $\dot{V} \leq 0$ e $\dot{V} = 0 \iff \dot{q} = 0$.
+
+% sezione \ref{section:pd_control_gravity_comp_join_space}
