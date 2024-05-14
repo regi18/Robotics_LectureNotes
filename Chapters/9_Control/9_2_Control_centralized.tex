@@ -62,7 +62,7 @@ ove $\mathbf{u}$ è il vettore di comandi disponibili per il controllo.
 
 
 
-\subsection{Controllo a dinamica inversa}
+\subsection{Controllo a dinamica inversa}\label{section:joint_space_inverse_dyn_contr}
 L’approccio di controllo a dinamica inversa è basato sull’idea di ottenere una \textbf{linearizzazione della dinamica del sistema per mezzo di una retroazione non lineare} degli stati tale da condurre ad un sistema lineare e disaccoppiato rispetto ad un nuovo vettore di accelerazioni di comando da progettare. Ovvero utilizzamo la tecnica nota come \textbf{feedback linearization}.
 
 Prima di cominciare, per comodità definiamo il modello della dinamica come:
@@ -394,6 +394,15 @@ u = g(q) + J_A^T(q)(K_P(p_d - p) - K_DJ_A(q)\dot{q})
 \end{equation}
 costituita da una compensazione non lineare delle coppie di gravità, definita nello spazio dei giunti, e da una legge lineare di tipo PD definita nello spazio operazionale.
 
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.7\linewidth]{control_pd_gravity_comp_oper_space}
+	\caption{Schema circuitale controllo PD con compensazione della gravità}
+	\label{fig:controlpdgravitycompoperspace}
+\end{figure}
+
+
 \vspace{5pt}
 \subsubsection{Dimostrazione stabilità}
 Con passaggi simili a quelli seguiti nello spazio dei giunti, si può dimostrare che il sistema raggiunge una postura di equilibrio asintoticamente stabile.
@@ -414,6 +423,73 @@ dove, se sostituiamo ad $u$ la forma del controllo di (\ref{eq:pd_gravity_comp_c
 $$
 \dot{V} = -\dot{q}^TF\dot{q} - \dot{q}^TJ_A^T(q)K_DJ_A(q)\dot{q}
 $$
-% e possiamo vedere che, per qualsiasi traiettoria del sistema, $\dot{V} \leq 0$ e $\dot{V} = 0 \iff \dot{q} = 0$.
+e possiamo vedere che, per qualsiasi traiettoria del sistema, $\dot{V} \leq 0$ e $\dot{V} = 0 \iff \dot{q} = 0$ (allora, per La Salle-Krasowski abbiamo stabilità asintotica).
+Seguendo lo stesso ragionamento per la stabilità visto in sezione \ref{section:pd_control_gravity_comp_join_space}, possiamo dire che il sistema raggiunge la postura di equilibrio asintoticamente stabile corrispondente a:
+$$
+J_A^T(q)K_Pe = 0
+$$
+e, sotto l'assunzione che lo Jacobiano abbia \textit{full-rank}, risulta
+$$
+e = 0
+$$
+ovvero ciò che volevamo.
 
-% sezione \ref{section:pd_control_gravity_comp_join_space}
+
+Possiamo infine notare che questo schema (analogo a quello visto nello spazio dei giunti), è un esempio di controllo nello spazio operazionale a Jacobiano trasposto.
+
+
+
+
+
+
+
+
+\subsection{Controllo a dinamica inversa}
+In sezione \ref{section:joint_space_inverse_dyn_contr} avevamo visto il controllo a dinamica inversa nello spazio dei giunti, dove avevamo selezionato il controllo $u = B(q)y + n(q, \dot{q})$, che sotto l’ipotesi di linearizzazione esatta portava ad un sistema di n doppi integratori $\ddot{q} = y$ (Il comando dell’anello esterno $y$ era stato quindi progettato per garantire l’inseguimento di una traiettoria $q_d$ nello spazio dei giunti).
+
+È possibile ora \textbf{riprogettare tale comando $y$ direttamente nello spazio operazionale} per ottenere l’inseguimento di una traiettoria cartesiana $p_d$.
+Derivando la relazione della cinematica diretta delle velocità $\dot{p} = J_A(q)\dot{q}$ si ottiene l’espressione dell’accelerazione cartesiana:
+$$
+\ddot{p} = J_A(q)\ddot{q} + \dot{J}_A(q, \dot{q})\dot{q}
+$$
+che “suggerisce” di definire $y$ come (ricordando che $e \triangleq p_d - p$):
+$$
+y \triangleq J_{A}^{-1}(q)\bigl(\ddot{p}_{d}+K_{D}\dot{e}+K_{P}e-\dot{J}_{A}(q,\dot{q})\dot{q}\bigr)
+$$
+(il ragionamento per la scelta di questa forma è lo stesso fatto in sezione \ref{section:joint_space_inverse_dyn_contr}).
+
+Con questa definizione di $y$ infatti si ottiene:
+$$
+\ddot{e} + K_D\dot{e} + K_Pe = 0
+$$
+e scegliendo $K_P$ e $K_D$ (diagonali) definite positive, si assegna la dinamica all’errore di inseguimento, garantendone la convergenza a zero.
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.7\linewidth]{images/inverse_dyn_control_oper_space}
+	\caption{Controllo a dinamica inversa nello spazio operazionale}
+	\label{fig:inversedyncontroloperspace}
+\end{figure}
+\unboldmath
+
+
+
+
+\subsection{Considerazioni generali}
+Tutti gli schemi di \textbf{controllo} sviluppati \textbf{nello spazio operazionale richiedono} il calcolo dello \textbf{Jacobiano}, che è influenzato dalla \textbf{presenza di singolarità e di ridondanza}.\\
+Ad esempio, in caso di passaggio per una configurazione singolare gli algoritmi di controllo potrebbero "bloccarsi" e "bloccare" il manipolatore in una configurazione diversa da quella desiderata (poichè $J_A^T(q)K_Pe=0$ ma con $e \neq 0$).
+
+Inoltre, lo sviluppo degli schemi considerati presuppone l’utilizzo di una rappresentazione minima dell’assetto (data dalla terna di angoli, che compare nella definizione di p); in caso contrario si dovrebbe fare ricorso allo Jacobiano geometrico con un aumento della complessità dell’analisi di stabilità.
+
+
+
+
+
+
+
+
+
+
+
+
+\section{Controllo dell’interazione}
