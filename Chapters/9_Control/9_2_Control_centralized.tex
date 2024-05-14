@@ -141,7 +141,7 @@ Il sistema risultante è mostrato in fig. \ref{fig:centralizedcontrol2}, dove no
 \end{figure}
 
 
-\vspace{20pt}
+\vspace*{20pt}
 \subsubsection{Problemi}
 L’ipotesi di linearizzazione esatta presuppone la capacità di calcolare \textit{online} le matrici $\mathbf{B(q)}$ e $\mathbf{n(q, \dot{q})}$ in modo esatto. Nella pratica però questo non è sempre possibile.
 Per compensare a questi errori è necessario utilizzare altre tecniche, ad esempio algoritmi di controllo robusto.
@@ -169,7 +169,7 @@ Il sistema ottenuto non è più lineare e disaccoppiato.
 
 Per fortuna, \textbf{nella pratica}, il metodo della dinamica inversa \textbf{risulta abbastanza robusto} anche nel caso di linearizzazione approssimata, per cui viene usato sia senza ulteriori modifiche, sia con l’aggiunta di un termine robustificante.\\
 
-\vspace{10pt}
+\vspace*{10pt}
 \subsubsection{Vari schemi visti come dinamica inversa}
 Tra gli schemi a dinamica inversa con linearizzazione approssimata, che non prevedono l’inserimento di termini robustificanti, possiamo includere:
 \begin{itemize}
@@ -246,7 +246,7 @@ Per fare un esempio, immagina il robot in figura \ref{fig:centralizedcontrolpdgr
 
 
 
-\vspace{20pt}
+\vspace*{20pt}
 \subsubsection{Dimostrazione stabilità}
 \boldmath
 Per dimostrare le caratteristiche di stabilità del punto di equilibrio corrispondente alla postura desiderata, è possibile applicare il \textbf{metodo diretto di Lyapunov}. Definiamo $e \triangleq q_d - q$ e consideriamo come funzione di Lyapunov:
@@ -293,7 +293,7 @@ Possiamo però ora osservare che comunque $\dot{V} = 0 \iff \dot{q} = 0$, e di c
 Dal teorema di \textit{La Salle-Krasowski} risulta pertanto globalmente asintoticamente stabile, come desiderato.
 \unboldmath
 
-\vspace{15pt}
+\vspace*{15pt}
 \begin{addendum}
 \textbf{Thm.} La Salle-Krasowski
 
@@ -403,7 +403,7 @@ costituita da una compensazione non lineare delle coppie di gravità, definita n
 \end{figure}
 
 
-\vspace{5pt}
+\vspace*{5pt}
 \subsubsection{Dimostrazione stabilità}
 Con passaggi simili a quelli seguiti nello spazio dei giunti, si può dimostrare che il sistema raggiunge una postura di equilibrio asintoticamente stabile.
 Partiamo nuovamente selezionando una funzione di Lyapunov (di nuovo $e \triangleq p_d - p$):
@@ -558,7 +558,7 @@ f_e = K_e(x - x_e)
 $$
 ove $K_e$ è il coefficiente di rigidezza dell’oggetto con cui il robot è in contatto.
 
-L’equazione dinamica del sistema robot + ambiente esterno può essere scritta come:
+L’equazione dinamica del sistema robot + ambiente esterno può essere scritta come (ovvero $F=ma=m\ddot{x}$ + legge di Hooke):
 $$
 m\ddot{x} + K_e(x - x_e) = f_c
 $$
@@ -577,5 +577,121 @@ m\ddot{x} + K_e(x - x_e) = K_P(x_r - x) - K_D\dot{x}
 m\ddot{x} + K_D\dot{x} + (K_e + K_P)x = K_ex_e + K_Px_r
 $$
 Scegliendo $K_D$ e $K_P$ positivi, il sistema risulta asintoticamente stabile.
+In condizione di equilibrio $(\dot{x}, \ddot{x}) = (0,0)$ si ha:
+$$
+(K_e + K_P)x = K_ex_e + K_Px_r
+$$
+da cui si ricava la \textbf{posizione} raggiunta dalla punta in condizioni \textbf{di equilibrio}:
+$$
+\bar{x} = \frac{K_ex_e + K_px_r}{K_e + K_P}
+$$
+e la forza applicata in questo stato di equilibrio risulta quindi:
+$$
+\bar{f}_e = K_e(\bar{x} - x_e)
+$$
 
-\hl{CONT DA P.57}
+Attraverso $K_P$ e $x_r$ è possibile assegnare il valore desiderato per la forza da applicare all’equilibrio. Si ottiene così un \textbf{controllo indiretto della forza} mediante le sole retroazioni di posizione e di velocità.
+
+\textbf{Oss.}\\
+Il guadagno $K_D$ non ha alcuna influenza sul comportamento del sistema in regime permanente, ma solo sulla stabilità del sistema e sulla velocità con cui viene raggiunta la condizione di stazionarietà. Il valore della forza all’equilibrio dipende sia dalla posizione $x_e$ dell’oggetto con cui il manipolatore è in contatto, sia dal suo coefficiente di rigidezza $K_e$. \textbf{Solo conoscendo il valore di questi parametri è possibile assegnare esattamente la forza all’equilibrio}.
+
+
+\vspace*{10pt}
+\subsubsection{Caso generale}
+Nel caso completo (a n gradi di libertà), possiamo rappresentare il legame fra le forze generalizzate applicate dal manipolatore $\mathbf{F_e}$ e lo spostamento elementare come
+$$
+\mathbf{F_e} = \begin{bmatrix}\mathbf{f} \\ \mathbf{n}\end{bmatrix} = \mathbf{K}\begin{bmatrix}d\mathbf{x} \\ \boldsymbol{\omega}dt\end{bmatrix}
+$$
+ove $\mathbf{K}$ è la matrice di rigidezza dell’ambiente, simmetrica e semi-definita positiva.
+
+In assenza di accoppiamenti fra le componenti di traslazione e di rotazione, la matrice risulta diagonale, inoltre, è solo semi-definita positiva, perché l’ambiente potrebbe non resistere a forze lungo tutte le direzioni.
+
+Il vettore dello spostamento elementare può essere trasformato nelle coordinate operazionali ($d\mathbf{p} = (d\mathbf{x}, d\boldsymbol{\alpha})^T$) ricordando il legame esistente fra lo Jacobiano geometrico e quello analitico, dato da:
+\boldmath
+\begin{equation}\label{eq:jac_an_jac_rel}
+J(q) = T_A(p)J_A(q) = 
+\begin{bmatrix}I & 0 \\ 0 & T(\alpha)\end{bmatrix}J_A(q)
+\end{equation}
+\unboldmath
+ove l’espressione di $T(\alpha)$ dipende dalla particolare rappresentazione scelta per l’assetto della punta. Possiamo quindi esprimere quindi $\mathbf{F}_e$ come:
+\begin{equation}\label{eq:fe_def}
+\boldsymbol{F_e} = \boldsymbol{KT_A(p)}d\boldsymbol{p} = \boldsymbol{KT_A(p)(p - p}_e)
+\end{equation}
+ove $\mathbf{p}_e$ è il vettore della posa dell’ambiente a riposo.
+
+Le coppie generalizzate risultanti (presenti nel modello dinamico del manipolatore) sono quindi date da:
+$$
+\boldsymbol{\tau_e = J^T(q)F_e = \underbrace{J_A^T(q)T_A^T(p)}_{J^T(q)} \underbrace{KT_A(p)(p - p_e)}_{F_e}}
+$$
+
+Questa relazione può essere vista anche come:
+$$
+\boldsymbol{\tau_e = J_A^T(q)K_A(p)(p - p_e)}
+$$
+dove 
+\boldmath
+\begin{equation}\label{eq:K_a_def}
+	K_A(p) \triangleq T_A^T(p)KT_A(p)
+\end{equation}
+è la matrice di rigidezza (\textit{rigidity}) dell’ambiente, espressa nelle coordinate operazionali (funzione delle coordinate stesse!). Se esiste, $K_A^{-1}$ è la matrice di cedevolezza (\textit{compliance}).
+
+
+
+\vspace*{10pt}
+\subsubsection{Controllo}
+Consideriamo allora \textbf{l’equazione dinamica del manipolatore, comprensiva del contributo delle forze scambiate con l’ambiente esterno} (ponendo $e \triangleq p_d - p$):
+$$
+B(q)\ddot{q} + C(q, \dot{q})\dot{q} + F_v\dot{q} + g(q) = u - J^T(q)F_e \\
+$$
+e l’algoritmo di controllo PD con compensazione della gravità, sviluppato nello spazio operazionale:
+$$
+u = g(q) + J_A^T(q)\left( K_Pe - K_DJ_A(q)\dot{q} \right) \\
+$$
+
+Unendo le due equazioni, e ponendoci in condizione di calcolo dell'equilibrio $(\dot{q}, \ddot{q}) = (0,0)$, otteniamo:
+\begin{gather*}
+	\cancelto{0}{B(q)\ddot{q} + C(q, \dot{q})\dot{q} + F_v\dot{q}} + \cancel{g(q)} = \cancel{g(q)} + J_A^T(q)\left( K_Pe - \cancelto{0}{K_DJ_A(q)\dot{q}} \right) - J^T(q)F_e \\
+	\Downarrow \\
+	J_A^T(q)K_Pe = J^T(q)F_e \\
+	\Downarrow \\
+	e = K_P^{-1}(J_A^T(q))^{-1}J^T(q)F_e \\
+	\Downarrow \\
+	e = K_P^{-1}T_A^T(p)F_e
+\end{gather*}
+\unboldmath
+
+dove l'ultima implicazione è stata fatta richiamando (\ref{eq:jac_an_jac_rel}): $J(q) = T_A(q)J_A(q) \implies T_A(q)=J(q)J_A^{-1}(q) \implies T_A^T(q)=(J_A^{-1}(q))^T J^T(q)$.
+
+\boldmath
+Poi, ricordando la definizione di $F_e$ da (\ref{eq:fe_def}) e quella di $K_A(p)$ da (\ref{eq:K_a_def}) possiamo scrivere:
+$$
+e = K_P^{-1}T_A^T(p)F_e = K_P^{-1}T_A^T(p)K T_A(p)(p - p_e) = K_P^{-1}K_A(p)(p - p_e)
+$$
+
+e quindi all'equilibrio:
+\begin{gather*}
+e = K_P^{-1}K_A(p)(p - p_e) \\
+\Downarrow \rlap{\scriptsize \text{espandi $e$}} \\
+p_d - p = K_P^{-1}K_A(p)(p - p_e) \\
+\Downarrow \rlap{\scriptsize \text{sposta $p_d$ a destra}} \\
+p = p_d - K_P^{-1}K_A(p)(p - p_e) \\
+\Downarrow \rlap{\scriptsize espandi la molt. con la parentesi a dx} \\
+p = p_d - K_P^{-1}K_A(p)p + K_P^{-1}K_A(p)p_e \\
+\Downarrow \rlap{\scriptsize isola $p$} \\
+p + K_P^{-1}K_A(p)p = p_d + K_P^{-1}K_A(p)p_e \\
+\Downarrow \\
+\displaybreak
+(I + K_P^{-1}K_A(p))p = p_d + K_P^{-1}K_A(p)p_e \\
+\Downarrow \\
+p = (I + K_P^{-1}K_A(p))^{-1}(p_d + K_P^{-1}K_A(p)p_e)
+\end{gather*}
+da cui è possibile anche ricavare il vettore delle forze generalizzate $\bar{F}_e$ applicate all’equilibrio, applicando il valore di $p$ trovato a (\ref{eq:fe_def}).
+Quest'ultimo ($\bar{F}_e$) è funzione di $K_P^{-1}$, che può essere considerata come la cedevolezza attiva (\textit{active compliance}) del robot, e della posa di riferimento $p_d$, oltre che delle caratteristiche fisiche e geometriche dell’ambiente ($K$ e $p_e$).
+
+È possibile controllare la rigidezza $K_P$ del robot (o la sua cedevolezza $K_P^{-1}$), in modo che "il robot prevalga sull’ambiente" o viceversa, lungo le diverse direzioni:
+\begin{itemize}
+	\item valori elevati degli elementi diagonali di $K_P$ rendono rigido il robot lungo le direzioni in cui si vuole controllare la posizione
+	\item mentre valori bassi degli elementi diagonali di $K_P$ rendono "cedevole" il robot lungo le direzioni in cui si vuole controllare la forza
+\end{itemize}
+
+\textit{Nelle slide in italiano ora qua fa il controllo di impedenza, controllo diretto della forza e moto vincolato, che però noi skippiamo}.
