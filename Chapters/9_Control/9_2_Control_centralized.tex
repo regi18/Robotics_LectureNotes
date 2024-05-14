@@ -493,3 +493,89 @@ Inoltre, lo sviluppo degli schemi considerati presuppone l’utilizzo di una rap
 
 
 \section{Controllo dell’interazione}
+Molti compiti prevedono il contatto della punta operativa con superfici esterne o la manipolazione di oggetti. Per compiere questo tipo di operazioni non è sufficiente controllare il moto del manipolatore, ma è necessario saper gestire la sua interazione con l’ambiente esterno.
+
+La grandezza che descrive in modo efficace la condizione di interazione, e che deve essere controllata in modo diretto o indiretto, è quindi la \textbf{forza di contatto} sulla punta operativa. L’idea base per il controllo della forza è quella di agire sulla cedevolezza (\textbf{compliance}) del sistema robotambiente, in modo passivo o attivo.
+
+
+\subsection{Cedevolezza passiva ed attiva}
+
+Il sistema formato dal manipolatore e dall’ambiente esterno con cui è in contatto è rappresentato da una \textbf{molla generalizzata equivalente}, di cui si impone il coefficiente (matrice nel caso a più dimensioni) di rigidezza (ovvero il suo reciproco, cioè la cedevolezza).
+
+Il \textbf{controllo} della cedevolezza può avvenire in maniera \textbf{passiva}, mediante l’inserimento di appositi dispositivi installati al polso del robot che reagiscono in modo opportuno a forze esterne.
+
+\begin{figure}[!ht]
+	\centering
+	\includegraphics[width=0.6\linewidth]{Remote_Center_of_Compliance.png}
+	\caption{Esempio di \textit{Remote Center of Compliance}}
+	\label{fig:remotecenterofcompliance}
+\end{figure}
+
+Ad esempio, Un \textbf{RCC} (\textit{Remote Center of Compliance}) inserisce una cedevolezza passiva fra robot e superficie esterna, “disaccoppiando” le forze e le coppie di contatto: le forze generano solo traslazioni, le coppie solo rotazioni.
+
+Tali dispositivi sono però poco versatili, di limitato utilizzo e non sono adatti ad applicazioni più evolute, che richiedano il controllo dei movimenti del robot mentre sono applicate forze controllate su oggetti ed elementi dell’ambiente esterno.
+
+Si passa quindi ad un \textbf{controllo attivo} della cedevolezza, cioè ad un controllo attivo dell’interazione (il prezzo da pagare è ovviamente costituito da un aumento della complessità del controllo e necessità di conoscere (in modo più o meno accurato) le caratteristiche degli elementi con cui il robot entra in contatto).
+
+
+
+
+
+
+\subsection{Strategie di controllo dell’interazione}
+
+Le strategie di controllo dell’interazione possono essere distinte in due categorie principali:
+\begin{itemize}
+	\item \textbf{Controllo indiretto della forza}: ottenuto attraverso uno schema di controllo del moto, senza la chiusura esplicita di un anello di forza. Tra le principali tecniche troviamo controllo della rigidezza (o della cedevolezza) e controllo di impedenza.
+	\item \textbf{Controllo diretto della forza}: prevedono la chiusura di un anello di forza, in aggiunta ad un anello interno di posizione o di velocità; possono includere il contemporaneo controllo di posizione e forza lungo direzioni appropriate (controllo ibrido).
+\end{itemize}
+
+
+
+
+
+
+
+\subsection{Controllo di rigidezza (\textit{compliance control})}
+
+Prima di vedere il caso generale, introduciamo un caso semplificato per aiutarci a capire.
+
+\subsubsection{Caso semplificato}
+Il concetto alla base del controllo di rigidezza può essere ben rappresentato nel caso semplificato ad 1 grado di libertà, ovvero sotto l’ipotesi che la forza applicata dalla punta del manipolatore sia diretta lungo la sola direzione perpendicolare alla superficie di contatto.
+
+Partiamo supponendo che la rigidezza della superficie non sia infinita. A causa di tale cedevolezza la punta provoca una deformazione, anche se estremamente piccola, della superficie stessa:
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.4\linewidth]{images/compliance_control_1}
+	\label{fig:compliancecontrol1}
+\end{figure}
+
+Sia $x$ la posizione della punta lungo la direzione di applicazione della forza, $x_e$ la posizione della superficie “a riposo” e $x_r$ la posizione di riferimento (interna alla superficie stessa e quindi non raggiungibile nella pratica).
+La forza applicata dal manipolatore è data da:
+$$
+f_e = K_e(x - x_e)
+$$
+ove $K_e$ è il coefficiente di rigidezza dell’oggetto con cui il robot è in contatto.
+
+L’equazione dinamica del sistema robot + ambiente esterno può essere scritta come:
+$$
+m\ddot{x} + K_e(x - x_e) = f_c
+$$
+ove $m$ è la massa equivalente del manipolatore nella direzione $x$ e $f_c$ è la forza di comando applicata (si suppone che la gravità non eserciti alcuna azione lungo la direzione $x$).
+
+Si consideri quindi una legge di controllo di tipo puramente PD (per l’ipotesi introdotta non è richiesta compensazione della gravità lungo $x$)
+$$
+f_c = K_P(x_r - x) - K_D\dot{x}
+$$
+con $x_r$ costante.
+
+Sostituendo l’espressione di $f_c$ nell’equazione dinamica del sistema si ottiene:
+$$
+m\ddot{x} + K_e(x - x_e) = K_P(x_r - x) - K_D\dot{x}
+\implies
+m\ddot{x} + K_D\dot{x} + (K_e + K_P)x = K_ex_e + K_Px_r
+$$
+Scegliendo $K_D$ e $K_P$ positivi, il sistema risulta asintoticamente stabile.
+
+\hl{CONT DA P.57}
