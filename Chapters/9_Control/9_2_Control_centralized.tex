@@ -15,26 +15,17 @@ Negli schemi di controllo centralizzato il manipolatore è considerato come un \
  
  
  
-\subsubsection{Idea principale}
-Il principale approccio di controllo centralizzato è detto a \textbf{dinamica inversa}, perché la coppia di comando è ricavata dall’equazione dinamica del manipolatore a partire dalla conoscenza delle variabili giunto (posizioni e velocità), ovvero dalla risoluzione del problema della dinamica inversa.\\
-Ovvero usando il modello dinamico:
-\boldmath
-$$
-B(q)\ddot{q} + C(q, \dot{q})\dot{q} + F_v\dot{q} + g(q) = \tau
-$$
-\unboldmath
-
-ci calcoliamo $\boldsymbol{\tau}$, che poi andiamo a fornire ai nostri attuatori, che quindi in questo caso saranno in modalità \textbf{torque-controlled}.
+ 
+ 
 
 
-
-
+\vspace*{20pt}
 \subsubsection{Ora usiamo attuatori torque-controlled}
-Come accennato in questo caso abbiamo bisogno di generatori di coppia.
+Come accennato all'inizio in questo caso userremo motori in modalità generatori di coppia. Intuitivamente queseto segue dal fatto che gli attuatori dovranno fornire coppie tali da compensare “esattamente” (o quanto meglio possibile) i disturbi strutturati: da questo si consegue che è opportuno utilizzare i motori come generatori di coppia anziché di velocità.
 
 Richiamando la forma semplificata del bilancio elettrico di armatura (\ref{eq:simplified_armature_electrical_balance}), possiamo scrivere:
 $$
-I_a = R_a^{-a}(V_a - K_\omega \omega_m) = R_a^{-1}(G_vV_c - K_\omega \omega_m)
+I_a = R_a^{-1}(V_a - K_\omega \omega_m) = R_a^{-1}(G_vV_c - K_\omega \omega_m)
 $$
 Dove l'ultima ugualianza deriva dall'amplificatore di potenza: $V_a = G_v V_c$.
 Di conseguenza, ricordando (sempre al modello del motore: vedi fig. \ref{fig:electricactuator1}), che $\tau_m = K_t I_a$, possiamo scrivere:
@@ -43,9 +34,9 @@ $$
 $$
 che si può notare essere uguale a (\ref{eq:torque_command}).
 
-Visto che però vogliamo avere un motore torque-controlled (come possiamo ricordare) è necessario inserire la corrente in retroazione. Per magimagia (forse vedi sezione \ref{section:torque_generator}) diciamo che il termine con $K_\omega$ diventa trascurabile e quindi:
+Visto che però vogliamo avere un motore torque-controlled è necessario inserire la corrente in retroazione. Per magimagia (forse vedi sezione \ref{section:torque_generator}) diciamo che il termine con $K_\omega$ diventa trascurabile e quindi:
 $$
-I_a = R_a^{-1}(G_vV_c) = G_i V_c
+I_a = R_a^{-1}(G_vV_c - \cancel{K_\omega\omega_m}) = G_i V_c
 $$
 Di conseguenza
 \boldmath
@@ -61,9 +52,11 @@ ove $\mathbf{u}$ è il vettore di comandi disponibili per il controllo.
 
 
 
-
+\vspace*{20pt}
 \subsection{Controllo a dinamica inversa}\label{section:joint_space_inverse_dyn_contr}
-L’approccio di controllo a dinamica inversa è basato sull’idea di ottenere una \textbf{linearizzazione della dinamica del sistema per mezzo di una retroazione non lineare} degli stati tale da condurre ad un sistema lineare e disaccoppiato rispetto ad un nuovo vettore di accelerazioni di comando da progettare. Ovvero utilizzamo la tecnica nota come \textbf{feedback linearization}.
+
+Il principale approccio di controllo centralizzato è detto a \textbf{dinamica inversa}, ed è basato sull’idea di ottenere una \textbf{linearizzazione della dinamica del sistema per mezzo di una retroazione non lineare} degli stati tale da condurre ad un sistema lineare e disaccoppiato rispetto ad un nuovo vettore di accelerazioni di comando da progettare. \\
+Detto in altre parole, applichiamo la tecnica nota come \textbf{feedback linearization}.
 
 Prima di cominciare, per comodità definiamo il modello della dinamica come:
 \boldmath
@@ -104,7 +97,7 @@ $$
 y = -K_P q - K_D \dot{q} + r
 $$
 
-che quindi, sostituiendo a $\ddot{q} = y$, otteniamo il seguente sistema di equazioni del secondo ordine:
+che quindi, sostituendo a $\ddot{q} = y$, otteniamo il seguente sistema di equazioni del secondo ordine:
 \begin{equation}\label{eq:2nd_order_dyn_feedback_lin}
 \ddot{q} + K_D \dot{q} + K_P q = r
 \end{equation}
@@ -118,7 +111,7 @@ $$
 $$
 
 \boldmath
-Il vettore di riferimento $r$ è definito a partire dalla traiettoria desiderata, pianificata ai giunti, come:
+Il vettore di riferimento $r$ è definito a partire dalla traiettoria desiderata, \textbf{pianificata ai giunti}, come:
 $$
 r \triangleq \ddot{q}_d + K_D \dot{q}_d + K_P q_d 
 $$
@@ -159,8 +152,7 @@ B(q)\ddot{q} + n(q, \dot{q}) = \hat{B}(q)y + \hat{n}(q, \dot{q}) \\
 \Downarrow \\
 \ddot{e} + K_D\dot{e} + K_Pe = \eta(q, \dot{q}, y)
 \end{gather*}
-
-where
+dove
 $$
 \eta(q, \dot{q}, y) \triangleq (I - B^{-1}\hat{B})y - B^{-1}(\hat{n} - n)
 $$
@@ -169,7 +161,7 @@ Il sistema ottenuto non è più lineare e disaccoppiato.
 
 Per fortuna, \textbf{nella pratica}, il metodo della dinamica inversa \textbf{risulta abbastanza robusto} anche nel caso di linearizzazione approssimata, per cui viene usato sia senza ulteriori modifiche, sia con l’aggiunta di un termine robustificante.\\
 
-\vspace*{10pt}
+\vspace*{5pt}
 \subsubsection{Vari schemi visti come dinamica inversa}
 Tra gli schemi a dinamica inversa con linearizzazione approssimata, che non prevedono l’inserimento di termini robustificanti, possiamo includere:
 \begin{itemize}
@@ -177,7 +169,7 @@ Tra gli schemi a dinamica inversa con linearizzazione approssimata, che non prev
 	$$
 	\hat{B}(q) = \bar{B} \quad , \quad \hat{n}(q, \dot{q}) = 0
 	$$
-	\item \textbf{Metodo della coppia calcolata} (o controllo a dinamica inversa in feedforward): già visto in sezione \ref{section:computed_torque}
+	\item \textbf{Metodo della coppia calcolata} (o controllo a dinamica inversa in feedforward): visto in sezione \ref{section:computed_torque}
 	\item \textbf{Controllo PD con compensazione della gravità}, che vediamo nella prossima sezione; questo controllo può essere visto come dinamica inversa ponendo:
 	$$
 	\hat{B}(q) = I \quad , \quad \hat{n}(q, \dot{q}) = g(q)
@@ -192,18 +184,17 @@ Tra gli schemi a dinamica inversa con linearizzazione approssimata, che non prev
 
 
 
-
+\vspace*{7pt}
 \subsection{Controllo PD con compensazione della gravità}
 
 Nel caso in cui si voglia assegnare al manipolatore una \textbf{postura di equilibrio costante} (anziché una traiettoria completa), è possibile realizzare un controllore tale da garantire la stabilità asintotica globale di tale postura.
 
-Facendo riferimento a (\ref{eq:simplified_armature_electrical_balance}): $B(q)\ddot{q} + n(q, \dot{q}) = u$, definiamo il controllo come:
 \boldmath
+Facendo riferimento a (\ref{eq:simplified_notation_dynamic}): $B(q)\ddot{q} + n(q, \dot{q}) = u$, definiamo il controllo come:
 $$
 u \triangleq g(q) + K_P(q_d - q) - K_D\dot{q}
 $$
-
-Così facendo, sostituendo $u$ a (\ref{eq:simplified_armature_electrical_balance}), otteniamo:
+Così facendo, sostituendo $u$ a (\ref{eq:simplified_notation_dynamic}), otteniamo:
 \begin{equation}\label{eq:pd_gravity_comp_dyn}
 B(q)\ddot{q} + C(q, \dot{q})\dot{q} + F_v\dot{q} + \cancel{g(q)} = \cancel{g(q)} + K_P(q_d - q) - K_D\dot{q}
 \end{equation}
@@ -218,22 +209,25 @@ Ovvero si riescono a cancellare gli effetti della gravità.
 \end{figure}
 (notare che nel circuito non è presente $\dot{q}_d$: questo poichè essendo $q_d$ costante la sua derivata è nulla)
 
-Analizzando il sistema risultante da (\ref{eq:pd_gravity_comp_dyn}), possiamo vedere che l'unico punto di equilibrio è dato da $q = q_d$:
+Analizzando il sistema risultante da (\ref{eq:pd_gravity_comp_dyn}), possiamo vedere che l'unico punto di equilibrio è dato da $q \equiv q_d$:
 \unboldmath
 \begin{align*}
 x \ \text{punto di equilibro} 
 &\iff 
 \dot{x} = \begin{pmatrix}\dot{q} \\ \ddot{q}\end{pmatrix} = 0
 \stepcounter{equation}\tag{\theequation}\label{eq:pd_grav_comp_equil} \\
+\textit{\footnotesize{sostituendo a (\ref{eq:pd_gravity_comp_dyn})}}
 &\iff 
 B(q)\cancelto{0}{\ddot{q}} + C(q, \dot{q})\cancelto{0}{\dot{q}} + F_v\cancelto{0}{\dot{q}} = K_P(q_d - q) - K_D\cancelto{0}{\dot{q}} \\
 &\iff
 0 = K_P(q_d - q) \\
+\textit{\footnotesize{essendo $K_P > 0$}}
 &\iff
 q = q_d
 \end{align*}
 
-Ovvero proprio quello che volevamo: stabilità in una postura costante $\mathbf{q}_d$.\\
+Ovvero proprio quello che volevamo: stabilità in una postura costante $\mathbf{q}_d$.
+
 Per fare un esempio, immagina il robot in figura \ref{fig:centralizedcontrolpdgravitycompexample}: il motori dovranno applicare delle coppie (i quali valori dipendono dal valore di $\mathbf{u}$ mostrato prima) per far rimanere il braccio in questa posizione statica.
 
 \begin{figure}[H]
@@ -255,13 +249,12 @@ V(\dot{q}, e) = \frac{1}{2}\dot{q}^TB(q)\dot{q} + \frac{1}{2}e^TK_Pe > 0    \qqu
 $$
 Dove possiamo interpretare il primo termine come l’energia cinetica del sistema ed il secondo come l’energia potenziale immagazzinata grazie alle rigidezze equivalenti date dai guadagni delle retroazioni delle posizioni ai giunti.
 
-In questa funzione è stato scelto come stato del sistema il vettore $(e, \ \dot{q})^T$ che, dal punto di vista dell'equilibro, è equivalente a quanto usato in (\ref{eq:pd_grav_comp_equil}):
+In questa funzione è stato scelto come stato del sistema il vettore $(e, \ \dot{q})^T$ che, dal punto di vista dell'equilibro è equivalente a quanto specificato in (\ref{eq:pd_grav_comp_equil}):
 \begin{gather*}
 \gamma \triangleq \begin{pmatrix}e \\ \dot{q}\end{pmatrix} = \begin{pmatrix}q - q_d \\ \dot{q}\end{pmatrix}
 \implies 
 \dot{\gamma} = \begin{pmatrix}\dot{e} \\ \ddot{q}\end{pmatrix} = \begin{pmatrix}\dot{q} - \cancelto{0}{\dot{q}_d} \\ \ddot{q}\end{pmatrix} = \begin{pmatrix}\dot{q} \\ \ddot{q}\end{pmatrix}
 \end{gather*}
-
 
 
 Ora passiamo allo studio del segno di $V$ lungo le traiettorie del sistema (come è richiesto dal metodo di Lyapunov). Derivando (ricordando che $\dot{q}_d = 0$, essendo $q_d$ costante), otteniamo:
@@ -289,7 +282,7 @@ $$
 $$
 che risulta essere \textbf{semi-definita negativa}. È solo \textbf{semi}-definita poichè è presente solo $\dot{q}$: $\dot{V} = 0$ per $\dot{q} = 0$ ma per qualsiasi $e$.
 
-Possiamo però ora osservare che comunque $\dot{V} = 0 \iff \dot{q} = 0$, e di conseguenza anche $\ddot{q} = 0$. Ricordando da (\ref{eq:pd_grav_comp_equil}) che $(\dot{q}, \ddot{q}) = (0,0)$ è la condizione di equilibrio, possiaom dire che $\dot{V}$ si annulla solo per l'unico punto di equilibrio del sistema.
+Possiamo però ora osservare che comunque $\dot{V} = 0 \iff \dot{q} = 0$, e di conseguenza anche $\ddot{q} = 0$. Ricordando da (\ref{eq:pd_grav_comp_equil}) che $(\dot{q}, \ddot{q}) = (0,0)$ è la condizione di equilibrio, possiamo dire che $\dot{V}$ si annulla solo per l'unico punto di equilibrio del sistema.
 Dal teorema di \textit{La Salle-Krasowski} risulta pertanto globalmente asintoticamente stabile, come desiderato.
 \unboldmath
 
@@ -302,7 +295,7 @@ Se prendiamo una funzione $V$ tale che:
 $$
 \begin{cases}
 	V(\mathbf{x}) > 0 \\
-	\dot{V(\mathbf{x})} \leq 0
+	\dot{V}(\mathbf{x}) \leq 0
 \end{cases}
 $$
 (i.e. $V$ positiva e $\dot{V}$ semi-definita negativa), \textbf{ma}
@@ -695,3 +688,4 @@ Quest'ultimo ($\bar{F}_e$) è funzione di $K_P^{-1}$, che può essere considerat
 \end{itemize}
 
 \textit{Nelle slide in italiano ora qua fa il controllo di impedenza, controllo diretto della forza e moto vincolato, che però noi skippiamo}.
+\unboldmath

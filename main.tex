@@ -16,6 +16,7 @@
 \usepackage[makeroom]{cancel}
 \usepackage[framemethod=tikz]{mdframed}
 \usepackage{mathtools}
+\usepackage{matlab-prettifier}
 
 % Modifica lo stile dell'header
 \usepackage{fancyhdr}         
@@ -44,6 +45,9 @@
 \usepackage{tikz}
 \tikzstyle{mybox} = [draw=black, thin, rectangle, rounded corners, inner ysep=5pt, inner xsep=5pt, fill=orange!20]
 
+% Circled number
+\newcommand*\circled[1]{\tikz[baseline=(char.base)]{
+		\node[shape=circle,draw,inner sep=2pt] (char) {#1};}}
 
 \newenvironment{proof}
 {\begin{mdframed}[leftmargin=15pt, rightmargin=15pt, leftline=false, rightline=false] \textit\bgroup}
@@ -81,6 +85,10 @@
 
 \input{Chapters/9_Control}
 
+% Declare appendix and set the equation counter format to (A.section.eqNumber)
+\appendix
+\renewcommand{\theequation}{\thesection.\arabic{equation}}
+\input{Chapters/Appendix}
 
 
 \end{document}
