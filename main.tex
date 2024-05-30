@@ -18,8 +18,9 @@
 \usepackage{mathtools}
 \usepackage{matlab-prettifier}
 \usepackage{subcaption}
-
-
+\usepackage{bm}
+\usepackage{tikz}
+\usepackage{colortbl} % for cell color
 
 % Modifica lo stile dell'header
 \usepackage{fancyhdr}         
@@ -63,6 +64,11 @@
 
 
 
+% ---------- NEW COMMANDS ----------
+\newcommand{\R}{\mathbb{R}}
+% ----------------------------------
+
+
 
 \graphicspath{ {images/} }
 
@@ -88,6 +94,7 @@
 
 \input{Chapters/1_Kinematic_Chains}
 \input{Chapters/2_Kinematics}
+\input{Chapters/3_Diff_Kinematics}
 \input{Chapters/9_Control}
 
 % Declare appendix and set the equation counter format to (A.section.eqNumber)
