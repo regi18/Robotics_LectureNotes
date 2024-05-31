@@ -22,6 +22,15 @@
 \usepackage{tikz}
 \usepackage{colortbl} % for cell color
 
+% Make references clickable and change style of links to blue
+\usepackage{hyperref}
+\hypersetup{
+	colorlinks=true,
+	linkcolor=blue,
+	filecolor=magenta,      
+	urlcolor=cyan,
+}
+
 % Modifica lo stile dell'header
 \usepackage{fancyhdr}         
 \pagestyle{fancy}
@@ -49,22 +58,21 @@
 \usepackage{tikz}
 \tikzstyle{mybox} = [draw=black, thin, rectangle, rounded corners, inner ysep=5pt, inner xsep=5pt, fill=orange!20]
 
-% Circled number
-\newcommand*\circled[1]{\tikz[baseline=(char.base)]{
-		\node[shape=circle,draw,inner sep=2pt] (char) {#1};}}
 
+% ------------ NEW ENV -------------
 \newenvironment{proof}
-{\begin{mdframed}[leftmargin=15pt, rightmargin=15pt, leftline=false, rightline=false] \textit\bgroup}
-{\egroup\hfill $\square$\end{mdframed}}
+{\begin{mdframed}[leftmargin=15pt, rightmargin=15pt, leftline=false, rightline=false] \textit{\underline{Dim.}} \\[10pt] \textit\bgroup}
+%{\egroup\hfill $\square$\end{mdframed}}
+{\egroup \par \raggedleft $\square$ \end{mdframed}}
 
 \newenvironment{addendum}
 {\begin{mdframed}[leftmargin=15pt, rightmargin=15pt, leftline=false, rightline=false] \textit\bgroup}
-%{\egroup\hfill {\rotatebox[origin=c]{45}{$\square$}}\end{mdframed}}
 {\egroup\hfill $\diamond$\end{mdframed}}
-
-
+% ----------------------------------
 
 % ---------- NEW COMMANDS ----------
+\newcommand*\circled[1]{\tikz[baseline=(char.base)]{\node[shape=circle,draw,inner sep=2pt] (char) {#1};}} % Circled number
+
 \newcommand{\R}{\mathbb{R}}
 % ----------------------------------
 
@@ -95,6 +103,8 @@
 \input{Chapters/1_Kinematic_Chains}
 \input{Chapters/2_Kinematics}
 \input{Chapters/3_Diff_Kinematics}
+\input{Chapters/4_Statics}
+\input{Chapters/5_Dynamics}
 \input{Chapters/9_Control}
 
 % Declare appendix and set the equation counter format to (A.section.eqNumber)

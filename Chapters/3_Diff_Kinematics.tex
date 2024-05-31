@@ -690,7 +690,130 @@ Variando $\bm{H}$ possiamo scegliere il nostro obiettivo secondario, di seguito 
 
 
 
-\subsection{Inversione di $\bm{J}$ nel caso di singolarità}
-Nel caso di singolarità abbiamo $\bm{J}$ non full-rank, di conseguenza invertire la matrice diventa più complesso. Ad esempio, in questo caso neanche la formula con la pseudo-inversa di (\ref{eq:diff_inv_kine_pseudo}) è applicabile, visto che anche $JJ^T$ è singolare e quindi non si può invertire ($\nexists \ (JJ^T)^{-1}$).
+\subsection{Inversione dello Jacobiano nel caso di singolarità}
+Nel caso di singolarità abbiamo $\bm{J}$ non full-rank, di conseguenza invertire la matrice diventa più complesso. Ad esempio, in questo caso neanche la formula con la pseudo-inversa di (\ref{eq:diff_inv_kine_pseudo}) è applicabile, visto che anche $JJ^T$ è singolare e quindi non si può invertire ($\nexists \ (JJ^T)^{-1}$). Dobbiamo quindi trovare un modo alternativo per invertire lo Jacobiano.
 
-\hl{TODO slide Rizzo}
+Invece di utilizzare la pseudo-inversa, possiamo optare per un trade-off fra accuratezza e relizzabilità attraverso l'utilizzo del \textbf{damped-least-square}:
+\begin{equation}\label{eq:damped_least_square}
+\bm{J}^* = \bm{J}^T(\bm{J}\bm{J}^T + k^2\bm{I})^{-1}
+\end{equation}
+
+\begin{proof}
+Partiamo dalla normale pseudo-inversa destra $J^\dagger = J^T(JJ^T)^{-1}$, quest'ultima può essere vista calcolata anche tramite la SVD di $J$:
+$$
+J^\dagger = V\Sigma^+ U^T
+$$
+dove
+$$
+\Sigma^{+}
+=
+\begin{bmatrix}
+	\sigma_1^{-1} & & 0 \\
+	& \ddots & \\
+	0 & & \sigma_m^{-1}
+\end{bmatrix}^T
+$$
+Il problema è che, nel caso di singolarità $1/q_i \to \infty$ (visto che $q_i \to 0$). Ora invece passiamo alla forma (\ref{eq:damped_least_square}), e calcoliamo anche questa tramite la SVD: l'unica differenza è nella matrice
+$$
+\Sigma^{+}
+=
+\begin{bmatrix}
+	\frac{1}{\sigma_1 + k^2} & & 0 \\
+	& \ddots & \\
+	0 & & \frac{1}{\sigma_m + k^2}
+\end{bmatrix}^T
+$$
+l'aggiunta del coefficiente $k^2$ permette di avere valori $\neq \infty$ anche quando $q_i \to 0$.
+\end{proof}
+
+
+
+
+
+\section{Cinematica inversa delle posizioni}
+\subsection[section:invkineinvjac]{Cinematica inversa tramite Jacobiano inverso} \label{section:invkineinvjac}
+Se la postura iniziale $\bm{q}(0)$ del robot è nota, \textbf{la cinematica inversa delle velocità può essere utilizzata per risolvere indirettamente il problema della cinematica inversa delle posizioni}, calcolando $\bm{q}(t)$ per integrazione
+$$
+v = J(q)\dot{q} \implies \dot{q} = J(q)^{-1}v \implies q = \int \dot{q} = \int J(q)^{-1}v
+$$
+ovvero:
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.7\linewidth]{images/diff_kine_11}
+	\label{fig:diffkine11}
+\end{figure}
+e inserendo la forma di $\bm{q}$ ottenuta tramite lo Jacobiano (geometrico):
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.4\linewidth]{images/diff_kine_12}
+	\label{fig:diffkine12}
+\end{figure}
+
+Il problema con questa soluzione \textit{naïve} è che a causa di errori numerici divergeremo dalla soluzione voluta:
+\begin{equation}\label{eq:inv_kine_diff_error}
+\bm{e} = \bm{x}_d - \bm{x}
+\end{equation}
+Per risolvere il problema possiamo andare ad analizzare la dinamica d'errore:
+\begin{equation*}
+\bm{\dot{e}} = \bm{\dot{x}}_d - \bm{\dot{x}} = \bm{\dot{x}}_d - \bm{J}_A(\bm{q})\dot{\bm{q}}
+\tag{$\star$}
+\end{equation*}
+e "chiudere il loop" per avere un feedback e correggere questo drift (e quindi far si che $\bm{e} \to 0$). Da qui, per semplicità supponendo che $\bm{J}_A$ sia invertibile, possiamo porre:
+$$
+\bm{\dot{q}}
+\triangleq
+\bm{J}_A^{-1}(\bm{q}) ( \dot{\bm{x}}_d + \bm{K}\bm{e})
+$$
+e, sostituendo in ($\star$), otteniamo la seguente dinamica d'errore:
+\begin{gather*}
+\bm{\dot{e}} = \bm{\dot{x}}_d - \bm{J}_A(\bm{q}) ( \bm{J}_A^{-1}(\bm{q}) ( \dot{\bm{x}}_d + \bm{K}\bm{e}) ) \\
+\Downarrow \\
+\bm{\dot{e}} = -\bm{K}\bm{e} \\
+\Downarrow \\
+\bm{\dot{e}} + \bm{K}\bm{e} = 0
+\end{gather*}
+dove se $\bm{K} > 0$ abbiamo stabilità asintotica dell'errore ($\implies \bm{x} \to \bm{x}_d$). Questa strategia può essere utilizzata per implementare il controllo cinematico, e funziona per basse velocità.
+
+\begin{figure}[!hb]
+	\centering
+	\includegraphics[width=0.7\linewidth]{images/diff_kine_13}
+	\caption{Circuito di controllo con Jacobiano inverso e feedback}
+	\label{fig:diffkine13}
+\end{figure}
+
+
+
+
+\subsection{Cinematica inversa tramite Jacobiano trasposto}
+Nella soluzione tramite Jacobiano inverso stiamo in pratica usando una sorta di feedback linearization per trasformare la dinamica d'errore (non-lineare) in un'equazione lineare che possiamo facilmente controllare. Lo svantaggio principale di questa tecnica, è che richiede l'inversione di $\bm{J}(\bm{q})$, che (soprattutto nel di singolarità o ridondanza) è computazionalmente molto pesante.
+
+Potremmo quindi pensare di progettare un "controllore" per l'errore direttamente nel caso non-lineare, ad esempio tramite il \textbf{metodo diretto di Lyapunov}. Scegliamo
+$$
+V(\bm{e})=\frac{1}{2}\bm{e}^{T}\bm{K}\bm{e} > 0 \quad \forall \bm{e} \neq \bm{0}
+\qquad
+,
+\qquad
+V(\bm{0}) = 0
+$$
+con $\bm{K} > 0$. Derivando e richiamando (\ref{eq:inv_kine_diff_error}), otteniamo:
+$$
+\dot{V}
+=
+\bm{e}^{T}\bm{K}\dot{\bm{x}}_{d} - \bm{e}^{T}\bm{K}\dot{\bm{x}}_{\bm{e}}
+=
+\bm{e}^{T}\bm{K}\dot{\bm{x}}_{d} - \bm{e}^{T}\bm{K} \underbrace{\bm{J}_A(\bm{q})\bm{\dot{q}}}_{\dot{\bm{x}}}
+$$
+e ponendo
+$$
+\dot{\bm{q}} \triangleq \bm{J}_{A}^{T}(\bm{q})\bm{K} \bm{e}
+$$
+otteniamo $\dot{V} < 0$ nel caso di riferimenti costanti ($\bm{x}_d = \text{const}$ i.e. $\bm{\dot{x}}_d = 0$).
+
+\begin{figure}[!ht]
+	\centering
+	\includegraphics[width=0.7\linewidth]{images/diff_kine_14}
+	\caption{Cinematica inversa con Jacobiano trasposto (riferimento costante)}
+	\label{fig:diffkine14}
+\end{figure}
+
+Per il caso di $\bm{x}_d$ tempo-variante ($\bm{\dot{x}}_d \neq 0$), non riusciamo a garantire la convergenza dell'errore, che possiamo dire essere solo norm-bounded e inversamente proporzionale a $\bm{K}$. Per avere convergenza di tale errore dovremmo nuovamente scegliere $\dot{\bm{q}}$ dipendente dallo (pseudo-)inverso dello Jacobiano (quindi ritornando al caso di sez. \ref{section:invkineinvjac})
