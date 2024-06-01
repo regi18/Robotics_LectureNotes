@@ -278,7 +278,7 @@ oppure
 	\bm{B}(\bm{q})\bm{\ddot{q}} + \bm{C}(\bm{q}, \bm{\dot{q}})\bm{q} + \bm{g}(\bm{q})= \mathcal{\bm{F}}
 }
 \end{equation}
-in modo che sia una \textit{comoda} EDO di 2° ordine. I due nuovi termini sono definiti come:
+in modo che risulti nella forma di una \textit{comoda} EDO di 2° ordine. I due nuovi termini sono definiti come:
 %$$
 %\sum_{j=1}^n \bm{B}_{ij}(\bm{q}) \ddot{q}_j
 %+
@@ -336,7 +336,7 @@ in modo che sia una \textit{comoda} EDO di 2° ordine. I due nuovi termini sono 
 
 
 \subsection{Forze non conservative}
-Ci manca solo da valorizzare il vettore delle forze generalizzate $\bm{\mathcal{F}}$. In generale possiamo dire che:
+Per concludere ci manca solo da valorizzare il vettore delle forze generalizzate $\bm{\mathcal{F}}$. In generale possiamo dire che:
 $$
 \bm{\mathcal{F}}
 =
@@ -350,7 +350,7 @@ $$
 $$
 dove $\bm{h}$ è il vettore delle forze generalizzate applicate \textit{dalla} punta operativa \textit{sull}’ambiente esterno.
 Sostiuendo a (\ref{eq:robot_dynamics_short2}) e riordinando i termini otteniamo:
-\begin{equation}\label{eq:robot_dynamics_short_complete}
+\begin{equation}\label{eq:dynamic_complete}
 	\boxed{
 		\bm{B}(\bm{q})\bm{\ddot{q}} + \bm{C}(\bm{q}, \bm{\dot{q}})\bm{q}		+
 		\bm{F}_v\dot{\bm{q}} 
@@ -364,4 +364,4 @@ Sostiuendo a (\ref{eq:robot_dynamics_short2}) e riordinando i termini otteniamo:
 		\bm{J}^T(\bm{q}) \bm{h}
 	}
 \end{equation}
-nuovamente abbiamo una forma di una EDO di 2° ordine: $\alpha\ddot{q} + \beta \dot{q} + g(q) = \mathcal{F}$
+dove nuovamente abbiamo la forma di una EDO di 2° ordine: $\alpha\ddot{q} + \beta \dot{q} + g(q) = \mathcal{F}$.
