@@ -15,7 +15,7 @@ $$
 essa è funzione delle coordinate generalizzate usate per descrivere la posizione del sistema, nonché delle loro derivate rispetto al tempo. Nel caso di un manipolatore le variabili giunto qi possono essere assunte come coordinate generalizzate. 
 
 Le equazioni di Eulero-Lagrange, che descrivono il comportamento dinamico del sistema, sono date da:
-$$
+\begin{equation}\label{eq:euler-lagrange}
 \frac{d}{dt}\left(\frac{\partial \mathcal{\bm{L}}}{\partial \dot{\bm{q}}_i}\right)
 -
 \frac{\partial \mathcal{\bm{L}}}{\partial \bm{q}_i}
@@ -23,7 +23,7 @@ $$
 \mathcal{\bm{F}}_i
 \qquad
 i = 1, \dots, n
-$$
+\end{equation}
 dove $\mathcal{\bm{F}}_i$ è la i-esima forza generalizzata, non conservativa (associata a $\bm{q}_i$).
 
 
@@ -204,5 +204,164 @@ dove $\bm{B}(\bm{q})$ è la matrice d’inerzia (data dalla somma dei vari termi
 
 
 
-\section{Energia potenziale}
-\hl{TODO}
+\subsection{Energia potenziale}
+In maniera analoga all'energia cinetica, definiamo:
+\begin{equation}\label{eq:pot_energy_sum}
+	\mathcal{U} = \sum_{i=1}^n \mathcal{U}_{l_i} + \mathcal{U}_{m_i}
+\end{equation}
+L’ipotesi che il manipolatore sia costituito da bracci rigidi implica l’assenza di elementi nella sua struttura che possano immagazzinare energia potenziale, di conseguenza essa è dovuta solo alla presenza della forza di gravità:
+\begin{gather*}
+	\begin{aligned}
+		\mathcal{U}_{l_i} &= -m_{l_i}\bm{g}_0^T \bm{p}_{l_i} \\
+		\mathcal{U}_{m_i} &= -m_{m_i}\bm{g}_0^T \bm{p}_{m_i}
+	\end{aligned} \\
+\Downarrow \\
+\boxed{
+\mathcal{U} = - \sum_{i=1}^n m_{l_i}\bm{g}_0^T \bm{p}_{l_i} + m_{m_i}\bm{g}_0^T \bm{p}_{m_i}
+}
+\end{gather*}
+dove $\bm{g}_0^T$ è il vettore di accelerazione gravitazionale nel base-frame (\textit{e.g. $\bm{g}_0^T = (0,0,-g)$ se l'asse $z$ è diretto verso l'alto}).
+
+
+
+
+
+\section{Equazioni dinamiche del manipolatore}
+Essendo ormai note le espressioni di $\mathcal{T}$ e $\mathcal{U}$, è possibile calcolare la funzione Lagrangiana $\mathcal{L}$ come:
+$$
+\mathcal{L}(\bm{q}, \bm{\dot{q}})
+=
+\mathcal{T}(\bm{q}, \bm{\dot{q}})
+-
+\mathcal{U}(\bm{q})
+$$
+e quindi ricavare le equazioni dinamiche del manipolatore dalle equazioni di Eulero-Lagrange (\ref{eq:euler-lagrange}). Eseguendo le derivate richieste si otteiene:
+
+\begin{equation}\label{eq:robot_dynamics}
+\boxed{\sum_{j=1}^n \bm{B}_{ij}(\bm{q}) \ddot{q}_j
++
+\sum_{j=1}^n \sum_{k=1}^n h_{ijk} (\bm{q}) \dot{q}_k \dot{q}_j 
++
+g_i(\bm{q})
+=
+\mathcal{F}_i
+\qquad
+i = 1, \dots, n
+}
+\end{equation}
+dove
+$$
+h_{ijk}
+=
+\frac{\partial B_{ij}}{\partial q_k}
+-
+\frac{1}{2} \frac{\partial B_{jk}}{\partial q_i}
+$$
+e il termine $g_i(q)$ dovuto alla gravità risulta pari a:
+$$
+g_i(\bm{q})
+=
+\frac{\partial \mathcal{U}}{\partial q_i}
+=
+-\sum_{j=1}^n m_{l_j}\bm{g}_0^T \bm{J}^{(l_j)}_{p_i}(\bm{q}) + m_{m_j}\bm{g}_0^T  \bm{J}^{(m_j)}_{p_i}(\bm{q})
+$$
+
+La stessa formula può essere riscritta in forma compatta come
+\begin{equation}\label{eq:robot_dynamics_short}
+\boxed{
+	\bm{B}(\bm{q})\bm{\ddot{q}} + \bm{n}(\bm{q}, \bm{\dot{q}}) = \mathcal{\bm{F}}
+}
+\end{equation}
+oppure
+\begin{equation}\label{eq:robot_dynamics_short2}
+\boxed{
+	\bm{B}(\bm{q})\bm{\ddot{q}} + \bm{C}(\bm{q}, \bm{\dot{q}})\bm{q} + \bm{g}(\bm{q})= \mathcal{\bm{F}}
+}
+\end{equation}
+in modo che sia una \textit{comoda} EDO di 2° ordine. I due nuovi termini sono definiti come:
+%$$
+%\sum_{j=1}^n \bm{B}_{ij}(\bm{q}) \ddot{q}_j
+%+
+%\underbrace{
+%\sum_{j=1}^n \sum_{k=1}^n h_{ijk} (\bm{q}) \dot{q}_k \dot{q}_j 
+%}_{\triangleq \ \bm{C}(\bm{q}, \bm{\dot{q}})\bm{q}}
+%+
+%g_i(\bm{q})
+%=
+%\mathcal{F}_i
+%$$
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.5\linewidth]{images/dynamics_2}
+	\label{fig:dynamics2}
+\end{figure}
+
+
+%\begin{equation}\label{eq:dynamic_n_def}
+%\boxed{
+%\bm{n}(\bm{q}, \bm{\dot{q}}) 
+%\triangleq
+%\bm{\dot{B}}(\bm{q})\bm{\dot{q}}
+%-
+%\frac{1}{2}\left( \frac{\partial}{\partial \bm{q}} (\bm{\dot{q}}^T \bm{B}(\bm{q})\dot{\bm{q}} ) \right)^T 
+%+
+%\left( \frac{\partial \mathcal{U}(\bm{q})}{\partial \bm{q}} \right)
+%}
+%\end{equation}
+
+
+
+\subsection{Interpretazione fisica dei termini}
+
+\begin{itemize}
+	\item Termini "di \textbf{accelerazione}": $\sum_{j=1}^n \bm{B}_{ij}(\bm{q}) \ddot{q}_j$
+	\begin{itemize}
+		\item $\bm{B}_{ii}(\bm{q})$ rappresenta il momento di inerzia equivalente sull’asse del giunto $i$-esimo nella configurazione $\bm{q}$, quando tutti gli altri giunti sono fermi
+		\item $\bm{B}_{ii}(\bm{q})$ con $i\neq j$, tiene conto degli effetti delle accelerazioni del giunto $j$ sul giunto $i$
+	\end{itemize}
+	
+	\item Termini "quadratici in \textbf{velocità}": $\sum_{j=1}^n \sum_{k=1}^n h_{ijk} (\bm{q}) \dot{q}_k \dot{q}_j$
+	\begin{itemize}
+		\item $h_{ijj}(\bm{q}) \dot{q}_j^2$ tiene conto degli effetti sul giunto $i$ della \textbf{forza centrifuga} dovuta al moto del giunto $j$
+		\item $h_{ijk}(\bm{q}) \dot{q}_j \dot{q}_k$ tiene conto degli \textbf{effetti di Coriolis} indotti sul giunto $i$ dalle velocità dei giunti $j$ e $k$
+	\end{itemize}
+	
+	\item Termini "dipendenti dalla configurazione": $g_i(\bm{q})$
+	\begin{itemize}
+		\item Rrappresenta il momento generato sul giunto $i$ dalla forza di gravità, nella configurazione $\bm{q}$
+	\end{itemize}
+\end{itemize}
+
+
+
+
+\subsection{Forze non conservative}
+Ci manca solo da valorizzare il vettore delle forze generalizzate $\bm{\mathcal{F}}$. In generale possiamo dire che:
+$$
+\bm{\mathcal{F}}
+=
+\underbrace{\bm{\tau}}_{\substack{\text{coppie attive} \\ \text{di comando}}}
+-
+\underbrace{\bm{F}_v\dot{\bm{q}}}_{\substack{\text{coppie di} \\ \text{attrito viscoso}}}
+-
+\underbrace{\bm{F}_s \text{sgn}(\dot{\bm{q}}) }_{\substack{\text{coppie di} \\ \text{attrito statico}}}
+-
+\underbrace{\bm{J}^T(\bm{q}) \bm{h}}_{\substack{\text{coppie generate per bilanciare} \\ \text{forze di contatto esterne}}}
+$$
+dove $\bm{h}$ è il vettore delle forze generalizzate applicate \textit{dalla} punta operativa \textit{sull}’ambiente esterno.
+Sostiuendo a (\ref{eq:robot_dynamics_short2}) e riordinando i termini otteniamo:
+\begin{equation}\label{eq:robot_dynamics_short_complete}
+	\boxed{
+		\bm{B}(\bm{q})\bm{\ddot{q}} + \bm{C}(\bm{q}, \bm{\dot{q}})\bm{q}		+
+		\bm{F}_v\dot{\bm{q}} 
+		+
+		\bm{F}_s \text{sgn}(\dot{\bm{q}})
+		+
+		\bm{g}(\bm{q})
+		= 
+		\bm{\tau}
+		-
+		\bm{J}^T(\bm{q}) \bm{h}
+	}
+\end{equation}
+nuovamente abbiamo una forma di una EDO di 2° ordine: $\alpha\ddot{q} + \beta \dot{q} + g(q) = \mathcal{F}$
