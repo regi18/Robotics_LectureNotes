@@ -349,4 +349,125 @@ Visto che questa soluzione non minimizza l'energia, abbiamo ovviamente una soluz
 
 \vspace*{15pt}
 \subsection{Movimento attraverso una sequenza di punti}
-In caso di compiti complessi, la traiettoria è specificata da una sequenza di punti (configurazioni $\bm{q}_k$) che il manipolatore deve raggiungere in determinati istanti di tempo \hl{bla bla bla TODO}
+In caso di compiti complessi, la traiettoria è specificata da una sequenza di punti (configurazioni $\bm{q}_k$) che il manipolatore deve raggiungere in determinati istanti di tempo.
+
+In questo caso si utilizzano polinomi interpolatori di grado opportuno, tali da garantire la continuità di $\bm{q}(t)$ ed almeno della sua derivata prima (la velocità ai giunti). Nel caso in cui venga garantita anche la continuità dell’accelerazione si parla di splines, sequenze di polinomi di terzo grado, calcolabili per via ricorsiva.\\
+
+\begin{figure}[ht!]
+	\centering
+	\includegraphics[width=0.5\linewidth]{images/trajectories_16}
+	\caption{}
+	\label{fig:trajectories16}
+\end{figure}
+
+
+\textbf{Svantaggi}
+\begin{itemize}
+	\item Non è possibile assegnare velocità iniziali e finali
+	\item I polinomi di alto ordine hanno una tendenza oscillatoria. Questo può portare a traiettorie innaturali
+	\item La precisione numerica peggiora con l'aumentare del grado del polinomio
+	\item Risolvere il sistema di equazioni ha un alto costo computazionale;
+	\item I coefficienti del polinomio dipendono da tutti i punti assegnati. Questo implica che, anche un cambiamento di un singolo punto del percorso impone il ricalcolo di tutti i coefficienti
+\end{itemize}
+
+Invece di usare polinomi di grado N potremmo usare alternative, come una serie di polinomi di 3° grado, sequenze di polinomi 2-1-2, etc.
+
+
+
+
+
+
+\section{Traiettorie nello spazio operazionale}
+La pianificazione della traiettoria nello spazio operazionale permette di definire un \textbf{particolare percorso} (ad esempio un tratto rettilineo o un arco di circonferenza) che deve \textbf{essere seguito dalla punta operativa} per lo svolgimento del compito prefissato e/o per evitare ostacoli o zone “proibite” dello spazio di lavoro.
+
+A partire dalla traiettoria cartesiana pianificata $\bm{x}(t)$ (e sue derivate) vengono determinati on-line i corrispondenti campioni di posizione, velocità ed accelerazione ai giunti per mezzo della cinematica inversa del manipolatore.
+
+In generale un movimento continuo per le coordinate cartesiane di posizione $\bm{x}(t)$ equivale ad un cammino da $\bm{x}_0$ a $\bm{x}_f$, pianificato assegnando una \textbf{specifica curva parametrica}. I cammini cartesiani più comunemente pianificati corrispondono a: \textbf{segmenti di retta} e \textbf{archi di circonferenza} (il primo caso si riconduce al movimento lineare PTP nello spazio).
+
+\subsection{Primitive}
+Identifichiamo una curva $\Gamma$ tramite la sua rappresentazione parametrica alla lunghezza d'arco $s$:
+$$
+\bm{f} = \bm{p}(s)
+$$
+Eccetto casi particolari, $\bm{p}$ permette la definizione di 3 versori che lo caratterizzano (vedi fig. \ref{fig:trajectories17}):
+\begin{align*}
+	\text{Versore tangente} \qquad \bm{t} &= \frac{d\bm{p}}{ds} \\[5pt]
+	\text{Versore normale} \qquad \bm{n} &= \frac{\frac{d^2 \bm{p}}{ds^2}}{\| \frac{d^2 \bm{p}}{ds^2} \|} \\[5pt]
+	\text{Versore binormale} \qquad \bm{b} &= \bm{t} \times \bm{n} \\[5pt]
+\end{align*}
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.5\linewidth]{images/trajectories_17}
+	\caption{}
+	\label{fig:trajectories17}
+\end{figure}
+
+
+
+\subsection{Primitiva per un segmento}
+La rappresentazione parametrica di un segmento che connette $p_i$ a $p_f$ è:
+$$
+p(s) = p_i + \frac{s(p_f - p_i)}{\| p_f - p_i \|}
+$$
+i versori:
+$$
+t = \frac{(p_f - p_i)}{\| p_f - p_i \|}
+$$
+mentre $n$ non è ben definito.
+
+
+
+\subsection{Primitiva per arco di circonferenza}
+Per quanto riguarda una circonferenza, essa può essere univocamente definita tramite il versore $r$ dell'asse centrale, un vettore $d$ di un punto nell'asse e un vettore $p_i$ di un punto sulla circonferenza.
+
+\begin{figure}[!ht]
+	\centering
+	\includegraphics[width=0.5\linewidth]{images/trajectories_18}
+	\caption{}
+	\label{fig:trajectories18}
+\end{figure}
+
+Sia $\delta < p_i - d$ e $|\delta r| < \|\delta\|$ per assicurare che $p_i$ non sia sull'asse centrale. Il centro della circonferenza è dato da $c = d+ (\delta^T r)r$, mentre il raggio $\rho = \|p_i - c\|$.
+
+Prendiamo ora un sistema di riferimento $\mathcal{O}'-x'y'z'$ avente l'origine coincide con il centro della circonferenza $c$, l'asse $x$ orientato nel verso di $p_i - c$ e l'asse $z$ è orientato nel verso di $r$.\\
+Quindi, nel r.f. appena definito, i punti della circonferenza sono rappresentati da:
+$$
+p'(s)
+=
+\begin{bmatrix}
+\rho \cos(\frac{s}{\rho}) \\[5pt]
+\rho \sin(\frac{s}{\rho}) \\[5pt]
+0
+\end{bmatrix}
+$$
+di conseguenza, se definiamo un'apposita matrice di rotazione ${}^\mathcal{O}\bm{R}_{\mathcal{O}'}$ possiamo indicare la circonferenza nell r.f. originale $\mathcal{O}$ come:
+$$
+p(s) = c + {}^\mathcal{O}R_{\mathcal{O}'} p'(s)
+$$
+
+
+\subsection{Generazione traiettorie}
+Abbiamo definito le primitive: ci manca ora da utilizzarle per pianificare delle traiettorie. Vogliamo generare una traiettoria nello spazio operazionale del tipo:
+$$
+x_{\text{traj}}(t) =
+\begin{bmatrix*}
+p(t) \\ \phi(t)
+\end{bmatrix*}
+$$
+
+Data la primitiva $p = f(s)$ possiamo utilizzare essa e le sue derivate per generare la relativa parte della traiettoria tramite una legge d'interpolazione (e.g. cubico o 2-1-2):
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.9\linewidth]{images/trajectories_19}
+	\label{fig:trajectories19}
+\end{figure}
+
+Per quanto riguarda l'orientamento, invece, andiamo ad utilizzare gli angoli di Eulero (così da evitare problemi di vincoli di ortogonalità che hanno le matrici di rotazione):
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.5\linewidth]{images/trajectories_20}
+	\label{fig:trajectories20}
+\end{figure}
+
+Una volta specificati, tramite $p(t)$ e $\phi(t)$, un percorso ed una traiettoria nello spazio operativo, l'applicazione della cinematica inversa ci permetterà di ricavare le corrispondenti traiettorie $q(t)$ nello spazio dei giunti.
