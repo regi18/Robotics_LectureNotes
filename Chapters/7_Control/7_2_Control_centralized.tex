@@ -261,7 +261,7 @@ In questa funzione è stato scelto come stato del sistema il vettore $(e, \ \dot
 
 Ora passiamo allo studio del segno di $V$ lungo le traiettorie del sistema (come è richiesto dal metodo di Lyapunov). Derivando (ricordando che $\dot{q}_d = 0$, essendo $q_d$ costante), otteniamo:
 $$
-\dot{V} = \dot{q}^TB(q)\ddot{q} + \frac{1}{2}\dot{q}\dot{B}(q)\dot{q} - \dot{q}^TK_Pe
+\dot{V} = \dot{q}^TB(q)\ddot{q} + \frac{1}{2}\dot{q}^T\dot{B}(q)\dot{q} - \dot{q}^TK_Pe
 $$
 procediamo sostituendo a $B(q)\ddot{q}$ la forma di esso fornita da (\ref{eq:pd_gravity_comp_dyn}) (ricordando la definizione di $e \triangleq q_d - q$):
 \begin{gather*}
